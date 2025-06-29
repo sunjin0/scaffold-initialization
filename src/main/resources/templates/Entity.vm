@@ -1,0 +1,36 @@
+package ${packageName}.entity;
+
+import lombok.Data;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import com.baomidou.mybatisplus.annotation.TableName;
+
+#if(${classComment}!="")
+/**
+* ${classComment}"实体类"}
+*/
+#else
+/**
+* ${className}"实体类"}
+*/
+#end
+@Data
+#if(${classComment} != "")
+@ApiModel("${classComment}")
+#else
+@ApiModel("${className}")
+#end
+@TableName("${tableName}")
+public class ${className} {
+
+#foreach($field in $fields)
+    #if($field.comment)
+    /**
+     * $field.comment
+     */
+    @ApiModelProperty(value = "$!field.comment")
+    #end
+    private $field.type $field.name;
+
+#end
+}

@@ -1,0 +1,56 @@
+package ${packageName}.controller;
+
+import ${packageName}.entity.${className};
+import ${packageName}.service.${className}Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.annotations.*;
+
+import java.util.List;
+
+
+@Api(tags = "${classComment}控制器")
+@RestController
+@RequestMapping("/api/${className}")
+public class ${className}Controller {
+
+    @Autowired
+    private ${className}Service ${serviceName}Service;
+
+    /**
+     * 查询所有
+     */
+    @ApiOperation("查询所有")
+    @GetMapping
+    public ResponseEntity<List<${className}>> list() {
+        return ResponseEntity.ok(${serviceName}Service.list());
+    }
+
+    /**
+     * 新增
+     */
+    @ApiOperation("新增")
+    @PostMapping
+    public ResponseEntity<Boolean> add(@RequestBody ${className} entity) {
+        return ResponseEntity.ok(${serviceName}Service.save(entity));
+    }
+
+    /**
+     * 删除
+     */
+    @ApiOperation("删除")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
+        return ResponseEntity.ok(${serviceName}Service.removeById(id));
+    }
+
+    /**
+     * 修改
+     */
+    @ApiOperation("修改")
+    @PutMapping
+    public ResponseEntity<Boolean> update(@RequestBody ${className} entity) {
+        return ResponseEntity.ok(${serviceName}Service.updateById(entity));
+    }
+}
