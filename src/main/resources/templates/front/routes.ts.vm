@@ -1,0 +1,86 @@
+export default [
+  {
+    name: 'login',
+    path: '/login',
+    layout: false,
+    component: './Login',
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    icon: 'smile',
+    component: './Dashboard',
+  },
+  {
+    path: '/',
+    redirect: '/dashboard',
+  },
+  {
+    path: '/msg',
+    name: '消息中心',
+    routes: [
+      {
+        path: '/msg/sms',
+        name: '短信管理',
+        component: './Message/Sms',
+      },
+      {
+        path: '/msg/email',
+        name: '邮件管理',
+        component: './Message/Email',
+      },
+    ],
+  },
+  {
+    path: '/sys',
+    name: '系统管理',
+    icon: 'tool',
+    routes: [
+      {
+        path: '/sys/admin',
+        name: '用户管理',
+        component: './Sys/Admin',
+      },
+      {
+        path: '/sys/role',
+        name: '角色管理',
+        component: './Sys/Role',
+      },
+      {
+        path: '/sys/resource',
+        name: '资源管理',
+        component: './Sys/Resource',
+      },
+      {
+        path: '/sys/dict',
+        name: '字典管理',
+        component: './Sys/Dict',
+      },
+    ],
+  },
+  {
+    path: '*',
+    layout: false,
+    component: './404',
+  },
+  #foreach($route in $routes)
+    {
+      path: '${route.path}',
+      name: '${route.name}',
+      #if($route.routes)
+        routes: [
+          #foreach($route in $route.routes)
+            {
+              path: '${route.path}',
+              name: '${route.name}',
+              component: './${route.component}',
+            },
+          #end
+        ]
+      #else
+        component: './${route.component}',
+      #end
+    },
+  #end
+
+]

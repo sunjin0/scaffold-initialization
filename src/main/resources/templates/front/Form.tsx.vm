@@ -1,0 +1,44 @@
+import DrawerForm from "@/components/DrawerForm";
+import {request, useIntl} from "@umijs/max";
+import {message} from "antd";
+import {ProFormText} from "@ant-design/pro-components";
+
+const $!{className}Form = (props: {
+  id: any;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+  onSuccess: () => void
+}) => {
+  const {id, open, setOpen, onSuccess} = props
+  const intl = useIntl()
+  const [form] = Form.useForm();
+  return (
+    <DrawerForm
+      open={open}
+      setOpen={setOpen}
+      id={id}
+      request={async (params) => await request('/api/chat/system/sys-admin/info', {params: {id: params}})}
+      onSuccess={async (values) => {
+          return true
+      }}
+      form={form}
+    >
+      <ProFormText
+        name={'id'}
+        hidden={true}
+      />
+      #foreach($field in $fields)
+        <ProFormText
+          name={'$field.name'}
+          label={'$field.comment'}
+          required
+          rules={[
+            {
+              required: true,
+            }
+          ]}
+        />
+      #end
+    </DrawerForm>);
+};
+export default $!{className}Form;

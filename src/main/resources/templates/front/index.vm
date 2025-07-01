@@ -1,0 +1,110 @@
+import React, {useRef, useState} from "react";
+
+import {ActionType, PageContainer, ProTable} from "@ant-design/pro-components";
+import {request, useIntl} from "@umijs/max";
+import {Button, message, Popconfirm} from "antd";
+import $!{className}Form from "@/pages/$!{packName}/$!{className}Form";
+import {FormattedMessage} from "@@/plugin-locale";
+import {PlusOutlined} from "@ant-design/icons";
+import {history, useAccess} from "@@/exports";
+/**
+*
+*@description $!{classComment}
+*@since $!{classComment}
+*/
+const ${className}: React.FC = () => {
+const [open, setOpen] = useState(false);
+const [id, setId] = useState(undefined);
+const ref = useRef<ActionType>()
+    const intl = useIntl()
+    const permissionMap = useAccess();
+    const path = history.location.pathname
+    const write = permissionMap[path]
+    const columns: any = [
+
+    #foreach($field in $fields)
+        {
+        title: '$field.comment',
+        dataIndex: '$field.name',
+        valueType: 'test',
+        ellipsis: true,
+        },
+    #end
+    {
+
+    title: intl.formatMessage({id: 'pages.common.option'}),
+    valueType: 'option',
+    key: 'option',
+    // 固定
+    fixed: 'right',
+    render: (text: any, record: Record<any, any>, _: any, action: any) =>write&& [
+    <Button
+            type={'link'}
+            key="editable"
+            onClick={() => {
+    setId(record.id)
+    setOpen(true)
+    }}
+    >
+    {intl.formatMessage({id: 'pages.common.edit'})}
+    </Button>,
+    <Popconfirm
+            key={'delete'}
+            title={intl.formatMessage({id: 'pages.confirm.delete'})}
+    onConfirm={async () => {
+    const {code, message: msg} = await request('/api/chat/system/sys-resource/delete', {
+    method: 'GET',
+    params: {id: record.id}
+    });
+    action?.reload()
+    if (code === 200) {
+    message.success(msg)
+    } else {
+    message.error(msg)
+    }
+    }}
+    >
+    <Button type={'link'}
+            key={'delete'}>
+        {intl.formatMessage({id: 'pages.common.delete'})}
+    </Button>
+    </Popconfirm>
+    ],
+    }
+    ]
+    return (
+    <PageContainer>
+        <ProTable
+                actionRef={ref}
+                request={async (params) => {
+            return await request('/api/chat/system/sys-resource/list', {method: 'POST', data: params})
+            }}
+            toolBarRender={() =>write&& [
+            <Button
+                    key="button"
+                    icon={<PlusOutlined/>}
+                type="primary"
+                onClick={() => {
+                setId(undefined)
+                setOpen(true)
+                }}
+                >
+                <FormattedMessage id="pages.common.new"/>
+            </Button>,
+            ]}
+            columns={columns}
+            />
+            <$!{className}Form
+                    id={id}
+                    open={open}
+                    setOpen={setOpen}
+                    onSuccess={() => {
+            setId(undefined)
+            ref.current?.reload()
+            }}
+            />
+    </PageContainer>
+    );
+    };
+
+    export default $!{className};
