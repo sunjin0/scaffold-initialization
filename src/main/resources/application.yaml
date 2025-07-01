@@ -2,5 +2,7 @@ spring:
   application:
       name: scaffold-initialization
       version: 1.0.0
+
 server:
   port: 9000
+

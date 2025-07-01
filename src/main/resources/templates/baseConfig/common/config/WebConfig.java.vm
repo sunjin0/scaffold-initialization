@@ -1,0 +1,44 @@
+package ${packageName}.config;
+
+import ${packageName}.interceptor.GlobalInterceptor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * Web 配置
+ *
+ * @author sun
+ * @since 2024/10/08
+ */
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Bean
+    LocaleResolver localeResolver() {
+        return new MyLocaleResolver();
+    }
+
+    @Bean
+    BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new GlobalInterceptor())
+                .addPathPatterns("/**"); // 拦截所有路径;
+    }
+}

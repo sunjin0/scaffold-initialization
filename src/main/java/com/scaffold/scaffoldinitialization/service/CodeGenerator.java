@@ -6,8 +6,10 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 public class CodeGenerator {
@@ -45,6 +47,7 @@ public class CodeGenerator {
 
         // 5. 为每个表生成代码
         for (TableInfo table : tables) {
+            table.setPackageName(PACKAGE_NAME);
             // Entity 放入 api 模块
             String entityPath = String.format("%s/entity/%s.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
             if (table.getPrefix() != null)
@@ -57,22 +60,22 @@ public class CodeGenerator {
                 mapperPath = String.format("%s/%s/mapper/%sMapper.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
             generateFile(ve, "Mapper.vm", table, MODULE_API, mapperPath);
 
-            // Service 放入 biz 模块
+            // Service 放入 api 模块
             String servicePath = String.format("%s/service/%sService.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
             if (table.getPrefix() != null)
-                servicePath = String.format("%s/service/%sService.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix() + table.getClassName());
+                servicePath = String.format("%s/%s/service/%sService.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
             generateFile(ve, "Service.vm", table, MODULE_API, servicePath);
 
             // ServiceImpl 放入 biz 模块
             String serviceImplPath = String.format("%s/service/impl/%sServiceImpl.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
             if (table.getPrefix() != null)
-                serviceImplPath = String.format("%s/service/impl/%s%sServiceImpl.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+                serviceImplPath = String.format("%s/%s/service/impl/%sServiceImpl.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
             generateFile(ve, "ServiceImpl.vm", table, MODULE_BIZ, serviceImplPath);
 
             // Controller 放入 admin 模块
             String controllerPath = String.format("%s/controller/%sController.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
             if (table.getPrefix() != null)
-                controllerPath = String.format("%s/controller/%sController.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix());
+                controllerPath = String.format("%s/%s/controller/%sController.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
             generateFile(ve, "Controller.vm", table, MODULE_ADMIN, controllerPath);
         }
 
@@ -116,7 +119,7 @@ public class CodeGenerator {
     private static void createModuleStructure(String moduleName) {
         String modulePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName;
         new File(modulePath).mkdirs();
-        new File(modulePath + "/src/main/java").mkdirs();
+        new File(modulePath + "/src/main/java/" + PACKAGE_NAME.replace(".", "/")).mkdirs();
         new File(modulePath + "/src/main/resources").mkdirs();
     }
 
@@ -133,14 +136,175 @@ public class CodeGenerator {
 
         // 生成根 pom.xml
         generateFile(ve, "pom.vm", tableInfo, PROJECT_ROOT + "/pom.xml");
-
         // 生成各模块的 pom.xml
         generateModulePom(ve, MODULE_API);
+        // 生成Api模块配置文件 api/application.yml,api/application-dev.yml,api/application-prod.yml
+        VelocityContext ctx = new VelocityContext();
+        String[][] templateMapping = new String[][]{
+                {"baseConfig/api/application.yml.vm", "application.yml"},
+                {"baseConfig/api/application-dev.yml.vm", "application-dev.yml"},
+                {"baseConfig/api/application-prod.yml.vm", "application-prod.yml"},
+                {"baseConfig/api/application-test.yml.vm", "application-test.yml"},
+        };
+        generateMultipleConfigFiles(ve, MODULE_API, "src/main/resources", templateMapping, ctx);
         generateModulePom(ve, MODULE_BIZ);
         generateModulePom(ve, MODULE_COMMON);
+        //将基础配置文件
+        templateMapping = new String[][]{
+                {
+                        "baseConfig/common/config/AsyncConfig.java.vm", "config/AsyncConfig.java"
+                },
+                {
+                        "baseConfig/common/config/MyBatisPlusConfig.java.vm", "config/MyBatisPlusConfig.java"
+                },
+                {
+                        "baseConfig/common/config/MyLocaleResolver.java.vm", "config/MyLocaleResolver.java"
+                },
+                {
+                        "baseConfig/common/config/MyMetaObjectHandler.java.vm", "config/MyMetaObjectHandler.java"
+                },
+                {
+                        "baseConfig/common/config/WebConfig.java.vm", "config/WebConfig.java"
+                },
+                {
+                        "baseConfig/common/convert/Convert.java.vm", "convert/Convert.java"
+                },
+                //exception
+                {
+                        "baseConfig/common/exception/GlobalException.java.vm", "exception/GlobalException.java"
+                },
+                {
+                        "baseConfig/common/exception/ServerException.java.vm", "exception/ServerException.java"
+                },
+                //i18
+                {
+                        "baseConfig/common/i18n/I18nService.java.vm", "i18n/I18nService.java"
+                },
+                {
+                        "baseConfig/common/i18n/I18nServiceImpl.java.vm", "i18n/I18nServiceImpl.java"
+                },
+                {
+                        "baseConfig/common/i18n/I18nUtils.java.vm", "i18n/I18nUtils.java"
+                },
+                //interceptor
+                {
+                        "baseConfig/common/interceptor/GlobalInterceptor.java.vm", "interceptor/GlobalInterceptor.java"
+                },
+                //local
+                {
+                        "baseConfig/common/local/CurrentUser.java.vm", "local/CurrentUser.java"
+                },
+                //utils
+                {
+                        "baseConfig/common/utils/AesUtils.java.vm", "utils/AesUtil.java"
+                },
+                {
+                        "baseConfig/common/utils/TokenUtils.java.vm", "utils/TokenUtils.java"
+                },
+                //validator
+                {
+                        "baseConfig/common/validator/FieldRule.java.vm", "validator/FieldRule.java"
+                },
+                {
+                        "baseConfig/common/validator/GenericValidator.java.vm", "validator/GenericValidator.java"
+                },
+                {
+                        "baseConfig/common/validator/Type.java.vm", "validator/Type.java"
+                },
+                {
+                        "baseConfig/common/validator/ValidEntity.java.vm", "validator/ValidEntity.java"
+                }
+        };
+        ctx.put("packageName", PACKAGE_NAME);
+        generateMultipleConfigFiles(ve,
+                MODULE_COMMON,
+                "src/main/java" + "/" + PACKAGE_NAME.replace(".", "/"),
+                templateMapping,
+                ctx);
         generateModulePom(ve, MODULE_ADMIN);
         generateModulePom(ve, MODULE_FRONT);
 
+    }
+
+    /**
+     * 生成多个配置文件
+     *
+     * @param ve              模板引擎
+     * @param moduleName      模块名称
+     * @param targetSubDir    目标子目录
+     * @param templateMapping 模板映射关系 [[模板路径, 目标文件路径]]
+     * @throws Exception 异常
+     */
+    private static void generateMultipleConfigFiles(VelocityEngine ve, String moduleName, String targetSubDir, String[][] templateMapping, VelocityContext ctx) throws Exception {
+        for (String[] mapping : templateMapping) {
+            String sourceTemplate = mapping[0];
+            String targetFile = mapping[1];
+            generateConfigFileFromTemplate(ve, moduleName, sourceTemplate, targetSubDir, targetFile, ctx);
+        }
+    }
+
+    /**
+     * 使用 Velocity 模板引擎生成配置文件（支持变量替换）
+     *
+     * @param ve                 Velocity 引擎
+     * @param moduleName         模块名（如 "api"、"biz"），null 表示项目根目录
+     * @param sourceTemplatePath 模板路径（相对于 templates 的路径，如 "config/application-dev.yml.vm"）
+     * @param targetSubDir       目标子目录（如 "src/main/resources"）
+     * @param targetFileName     输出文件名（如 "application.yml"）
+     * @param context            Velocity 上下文（用于变量替换）
+     * @throws Exception 模板生成异常
+     */
+    private static void generateConfigFileFromTemplate(VelocityEngine ve,
+                                                       String moduleName,
+                                                       String sourceTemplatePath,
+                                                       String targetSubDir,
+                                                       String targetFileName,
+                                                       VelocityContext context) throws Exception {
+        // 构建目标路径
+        String basePath = OUTPUT_DIR + PROJECT_ROOT;
+        if (moduleName != null && !moduleName.isEmpty()) {
+            basePath += "/" + moduleName;
+        }
+
+        // ✅ 使用 File 对象构造路径（更安全，跨平台兼容性好）
+        File targetDir = new File(basePath, targetSubDir); // C:\...\common\src\main\java
+        File targetFile = new File(targetDir, targetFileName); // + com/example/demo/config/AsyncConfig.java
+
+        if (targetFile.exists()) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
+            return;
+        }
+
+        // ✅ 确保父目录存在（即 java 下的包路径）
+        File parentDir = targetFile.getParentFile();
+        if (!parentDir.exists()) {
+            parentDir.mkdirs(); // 会自动创建 com → example → demo → config 路径
+        }
+
+        // 加载模板
+        Template template = ve.getTemplate(TEMPLATE_DIR + "/" + sourceTemplatePath, "UTF-8");
+
+        // 写入输出文件
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8)) {
+            template.merge(context, writer);
+        } catch (Exception e) {
+            System.err.println("无法写入文件: " + targetFile);
+            throw new RuntimeException("写入文件失败: " + targetFile, e);
+        }
+
+        System.out.println("📎 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
+    }
+
+    /**
+     * 获取相对于根目录的相对路径
+     */
+    private static String getRelativePath(File rootDir, File currentDir) {
+        String rootPath = rootDir.getAbsolutePath();
+        String currentPath = currentDir.getAbsolutePath();
+        if (!currentPath.startsWith(rootPath)) {
+            throw new IllegalArgumentException("currentDir 不在 rootDir 路径下");
+        }
+        return currentPath.substring(rootPath.length() + 1).replace("\\", "/");
     }
 
     private static void generateModulePom(VelocityEngine ve, String moduleName) throws Exception {
