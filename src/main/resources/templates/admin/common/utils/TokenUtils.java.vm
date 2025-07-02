@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import ${packageName}.entity.auth.SysToken;
+import ${packageName}.entity.SysToken;
 import ${packageName}.exception.ServerException;
 
 import java.util.Calendar;

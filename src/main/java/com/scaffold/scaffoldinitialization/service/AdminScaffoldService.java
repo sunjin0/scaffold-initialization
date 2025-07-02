@@ -59,6 +59,10 @@ public class AdminScaffoldService {
         for (TableInfo table : tables) {
             CodeGenerator(table, ve);
         }
+        //创建启动 文件
+        TableInfo table = tables.get(0);
+        table.setServiceName(PROJECT_ROOT);
+        generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), table.getServiceName()));
 
         System.out.println("✅ 后台项目代码生成完成！");
     }
@@ -73,33 +77,34 @@ public class AdminScaffoldService {
     private static void CodeGenerator(TableInfo table, VelocityEngine ve) throws Exception {
         table.setPackageName(PACKAGE_NAME);
         // Entity 放入 api 模块
-        String entityPath = String.format("%s/entity/%s.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
+        String packPath = PACKAGE_NAME.replace(".", "/");
+        String entityPath = String.format("%s/entity/%s.java", packPath, table.getClassName());
         if (table.getPrefix() != null)
-            entityPath = String.format("%s/%s/entity/%s.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+            entityPath = String.format("%s/%s/entity/%s.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "Entity.vm", table, MODULE_API, entityPath);
 
         // Mapper 放入 api 模块
-        String mapperPath = String.format("%s/mapper/%sMapper.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
+        String mapperPath = String.format("%s/mapper/%sMapper.java", packPath, table.getClassName());
         if (table.getPrefix() != null)
-            mapperPath = String.format("%s/%s/mapper/%sMapper.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+            mapperPath = String.format("%s/%s/mapper/%sMapper.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "Mapper.vm", table, MODULE_API, mapperPath);
 
         // Service 放入 api 模块
-        String servicePath = String.format("%s/service/%sService.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
+        String servicePath = String.format("%s/service/%sService.java", packPath, table.getClassName());
         if (table.getPrefix() != null)
-            servicePath = String.format("%s/%s/service/%sService.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+            servicePath = String.format("%s/%s/service/%sService.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "Service.vm", table, MODULE_API, servicePath);
 
         // ServiceImpl 放入 biz 模块
-        String serviceImplPath = String.format("%s/service/impl/%sServiceImpl.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
+        String serviceImplPath = String.format("%s/service/impl/%sServiceImpl.java", packPath, table.getClassName());
         if (table.getPrefix() != null)
-            serviceImplPath = String.format("%s/%s/service/impl/%sServiceImpl.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+            serviceImplPath = String.format("%s/%s/service/impl/%sServiceImpl.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "ServiceImpl.vm", table, MODULE_BIZ, serviceImplPath);
 
         // Controller 放入 admin 模块
-        String controllerPath = String.format("%s/controller/%sController.java", PACKAGE_NAME.replace(".", "/"), table.getClassName());
+        String controllerPath = String.format("%s/controller/%sController.java", packPath, table.getClassName());
         if (table.getPrefix() != null)
-            controllerPath = String.format("%s/%s/controller/%sController.java", PACKAGE_NAME.replace(".", "/"), table.getPrefix(), table.getClassName());
+            controllerPath = String.format("%s/%s/controller/%sController.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "Controller.vm", table, MODULE_ADMIN, controllerPath);
     }
 
@@ -241,17 +246,21 @@ public class AdminScaffoldService {
                 },
                 //entity
                 {
-                    "admin/common/entity/BaseEntity.java.vm", "entity/BaseEntity.java"
+                        "admin/common/entity/BaseEntity.java.vm", "entity/BaseEntity.java"
                 },
                 {
-                    "admin/common/entity/Option.java.vm", "entity/Option.java"
+                        "admin/common/entity/Option.java.vm", "entity/Option.java"
                 },
                 {
-                    "admin/common/entity/Route.java.vm", "entity/Route.java"
+                        "admin/common/entity/Route.java.vm", "entity/Route.java"
                 },
                 {
-                    "admin/common/entity/WebResponse.java.vm", "entity/WebResponse.java"
+                        "admin/common/entity/WebResponse.java.vm", "entity/WebResponse.java"
                 },
+                //token
+                {
+                        "admin/common/entity/SysToken.java.vm", "entity/SysToken.java"
+                }
         };
     }
 
@@ -299,10 +308,10 @@ public class AdminScaffoldService {
         File targetDir = new File(basePath, targetSubDir); // C:\...\common\src\main\java
         File targetFile = new File(targetDir, targetFileName); // + com/example/demo/config/AsyncConfig.java
 
-        if (targetFile.exists()) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
-            return;
-        }
+//        if (targetFile.exists()) {
+//            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
+//            return;
+//        }
 
         // ✅ 确保父目录存在（即 java 下的包路径）
         File parentDir = targetFile.getParentFile();
@@ -375,6 +384,10 @@ public class AdminScaffoldService {
 
         String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + module + "/src/main/java/" + outPath;
         File outFile = new File(outputFilePath);
+//        if (outFile.exists()) {
+//            System.out.println("⚠️ 文件已存在，跳过生成：" + outputFilePath);
+//            return;
+//        }
         outFile.getParentFile().mkdirs();
 
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
