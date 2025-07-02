@@ -1,6 +1,7 @@
 package com.scaffold.scaffoldinitialization.service;
 
 import com.scaffold.scaffoldinitialization.entity.TableInfo;
+import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -8,7 +9,10 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -16,9 +20,15 @@ import java.util.List;
 
 public class SqlParser {
 
+    /**
+     * 解析 SQL
+     *
+     * @param filePath 文件路径
+     * @return {@link ArrayList }<{@link TableInfo }>
+     */
     public static ArrayList<TableInfo> parseSql(String filePath) {
-        // 预设初始容量（假设平均每个文件有5张表）
-        ArrayList<TableInfo> tableInfos = new ArrayList<>(10);
+        // 预设初始容量（假设平均每个文件有20张表）
+        ArrayList<TableInfo> tableInfos = new ArrayList<>(20);
         String sql;
         try {
             sql = Files.readString(Paths.get(filePath));
@@ -28,7 +38,18 @@ public class SqlParser {
             System.err.println("无法读取SQL文件: " + filePath);
             throw new RuntimeException("读取SQL文件失败: " + filePath, e);
         }
+        // 解析SQL
+        parse(sql, tableInfos);
+        return tableInfos;
+    }
 
+    /**
+     * 解析
+     *
+     * @param sql        SQL
+     * @param tableInfos 表格信息
+     */
+    private static void parse(String sql, ArrayList<TableInfo> tableInfos) {
         Statements statements;
         try {
             statements = CCJSqlParserUtil.parseStatements(sql);
@@ -58,8 +79,36 @@ public class SqlParser {
                 tableInfos.add(tableInfo);
             }
         }
+    }
+
+    /**
+     * 从 Stream 解析 SQL
+     *
+     * @param inputStream 输入流
+     * @return {@link ArrayList }<{@link TableInfo }>
+     */
+    public static ArrayList<TableInfo> parseSqlFromStream(InputStream inputStream) {
+        // 预设初始容量（假设平均每个文件有5张表）
+        ArrayList<TableInfo> tableInfos = new ArrayList<>(20);
+        StringBuilder sqlBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sqlBuilder.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            System.err.println("无法读取输入流");
+            throw new RuntimeException("读取输入流失败", e);
+        }
+
+        String sql = sqlBuilder.toString();
+        sql = sql.replaceAll("\\bUNIQUE\\b", ""); // 简单去除 UNIQUE 关键字
+        // 解析 SQL
+        parse(sql, tableInfos);
         return tableInfos;
     }
+
 
     private static List<TableInfo.FieldInfo> mapColumnsToFieldInfos(List<ColumnDefinition> columnDefinitions) {
         List<TableInfo.FieldInfo> fieldInfos = new ArrayList<>(columnDefinitions.size());
@@ -110,8 +159,10 @@ public class SqlParser {
             default -> "Object";
         };
     }
+
     /**
      * 将javaType转换为ts类型
+     *
      * @param javaType java类型
      * @return ts类型
      */

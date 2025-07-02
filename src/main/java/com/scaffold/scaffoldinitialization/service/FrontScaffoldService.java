@@ -47,9 +47,9 @@ public class FrontScaffoldService {
         PROJECT_ROOT = projectName;
         OUTPUT_DIR = outputDir;
         VelocityEngine ve = getVelocityEngine();
+        //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
+        FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
         for (TableInfo table : tableInfos) {
-            //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
-            FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
             //生成service文件
             generateController(ve, table);
             //生成页面文件，表单文件

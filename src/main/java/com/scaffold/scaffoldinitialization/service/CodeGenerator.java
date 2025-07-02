@@ -8,18 +8,20 @@ public class CodeGenerator {
 
     // SQL文件路径
     public static final String SQL_PATH = "huayou_3.9.sql";
+    public static final String OUTPUT_DIR = "C:\\Users\\Administrator\\IdeaProjects\\";
 
     public static void main(String[] args) throws Exception {
         ArrayList<TableInfo> tableInfos = SqlParser.parseSql(SQL_PATH);
         AdminScaffoldService.generateAdminScaffold("hy",
                 "com.hy",
                 tableInfos,
-                "D:\\project\\");
+                OUTPUT_DIR);
         FrontScaffoldService.generateFrontScaffold("hy-ui",
                 tableInfos,
-                "D:\\project\\");
+                OUTPUT_DIR);
         System.out.println("✅ 项目代码生成完成！");
     }
+
 
 
 }

@@ -3,6 +3,7 @@ package ${packageName}.controller;
 import ${packageName}.entity.${className};
 import ${packageName2}.entity.WebResponse;
 import ${packageName}.service.${className}Service;
+import ${packageName}.permission.Permission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
@@ -22,6 +23,7 @@ public class ${className}Controller {
      * 查询所有
      */
     @ApiOperation("查询所有")
+    @Permission(path = "${prefix}${serviceName}")
     @PostMapping("/list")
     public WebResponse<List<${className}>> list() {
         return WebResponse.OK(${serviceName}Service.list());
@@ -31,6 +33,7 @@ public class ${className}Controller {
      * 新增
      */
     @ApiOperation("新增")
+    @Permission(path = "${prefix}${serviceName}", type = Permission.Type.Write)
     @PostMapping("/add")
     public WebResponse<Boolean> add(@RequestBody ${className} entity) {
         return WebResponse.OK(${serviceName}Service.save(entity));
@@ -39,6 +42,7 @@ public class ${className}Controller {
      * 删除
      */
     @ApiOperation("删除")
+    @Permission(path = "${prefix}${serviceName}", type = Permission.Type.Write)
     @GetMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam String id) {
         return WebResponse.OK(${serviceName}Service.removeById(id));
@@ -47,7 +51,8 @@ public class ${className}Controller {
      * 修改
      */
     @ApiOperation("修改")
-    @PutMapping("/update")
+        @Permission(path = "${prefix}${serviceName}", type = Permission.Type.Write)
+        @PutMapping("/update")
     public WebResponse<Boolean> update(@RequestBody ${className} entity) {
         return WebResponse.OK(${serviceName}Service.updateById(entity));
     }

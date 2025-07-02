@@ -60,7 +60,10 @@ public class AdminScaffoldService {
             CodeGenerator(table, ve);
         }
         //创建启动 文件
-        TableInfo table = tables.get(0);
+        TableInfo tableOne = tables.get(0);
+        TableInfo table = new TableInfo();
+        table.setPackageName(tableOne.getPackageName());
+        table.setClassName(tableOne.getClassName());
         table.setServiceName(PROJECT_ROOT);
         generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), table.getServiceName()));
 
@@ -108,9 +111,7 @@ public class AdminScaffoldService {
         generateFile(ve, "Controller.vm", table, MODULE_ADMIN, controllerPath);
     }
 
-    /**
-     * 创建基础项目结构（src, pom.xml等）
-     */
+
     /**
      * 创建多模块项目结构（api, biz, common, admin, front）
      */
@@ -128,6 +129,11 @@ public class AdminScaffoldService {
         new File(OUTPUT_DIR + PROJECT_ROOT + "/src/main/resources").mkdirs();
     }
 
+    /**
+     * 创建模块结构
+     *
+     * @param moduleName 模块名称
+     */
     private static void createModuleStructure(String moduleName) {
         String modulePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName;
         new File(modulePath).mkdirs();
@@ -137,7 +143,10 @@ public class AdminScaffoldService {
 
 
     /**
-     * 生成全局配置文件（如根 pom.xml）
+     * 生成全局配置文件（如根 pom.xml,common）
+     *
+     * @param ve ve
+     * @throws Exception 例外
      */
     private static void generateGlobalFiles(VelocityEngine ve) throws Exception {
         TableInfo tableInfo = new TableInfo();
@@ -260,6 +269,17 @@ public class AdminScaffoldService {
                 //token
                 {
                         "admin/common/entity/SysToken.java.vm", "entity/SysToken.java"
+                },
+                //emums
+                {
+                        "admin/common/enums/State.java.vm", "enums/State.java"
+                },
+                //permission
+                {
+                        "admin/common/permission/Permission.java.vm", "permission/Permission.java"
+                },
+                {
+                        "admin/common/permission/PermissionAop.java.vm", "permission/PermissionAop.java"
                 }
         };
     }
@@ -297,7 +317,7 @@ public class AdminScaffoldService {
                                                        String sourceTemplatePath,
                                                        String targetSubDir,
                                                        String targetFileName,
-                                                       VelocityContext context) throws Exception {
+                                                       VelocityContext context) {
         // 构建目标路径
         String basePath = OUTPUT_DIR + PROJECT_ROOT;
         if (moduleName != null && !moduleName.isEmpty()) {
@@ -345,6 +365,13 @@ public class AdminScaffoldService {
         return currentPath.substring(rootPath.length() + 1).replace("\\", "/");
     }
 
+    /**
+     * 生成模块 POM
+     *
+     * @param ve         ve
+     * @param moduleName 模块名称
+     * @throws Exception 例外
+     */
     private static void generateModulePom(VelocityEngine ve, String moduleName) throws Exception {
         VelocityContext ctx = new VelocityContext();
         ctx.put("groupId", PACKAGE_NAME);
