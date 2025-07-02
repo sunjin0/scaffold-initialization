@@ -1,0 +1,55 @@
+import DrawerForm from "@/components/DrawerForm";
+import { useIntl} from "@umijs/max";
+import {Form} from "antd";
+import {ProFormText} from "@ant-design/pro-components";
+import {get$!{className}Info,add$!{className}Info,update$!{className}Info} from "@/services/${prefix}$!{className}Controller";
+/**
+ *
+ *@description $!{classComment}表单
+ *@since $!{since}
+ */
+const $!{className}Form = (props: {
+  id: any;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+  onSuccess: () => void
+}) => {
+  const {id, open, setOpen, onSuccess} = props
+  const intl = useIntl()
+  const [form] = Form.useForm();
+  return (
+    <DrawerForm
+      open={open}
+      setOpen={setOpen}
+      id={id}
+      request={async (params) => get$!{className}Info(params)}
+      form={form}
+      onSuccess={async (values) => {
+        if(id){
+          await update$!{className}Info(values)
+        }else{
+          await add$!{className}Info(values)
+        }
+          onSuccess()
+          return true
+      }}
+    >
+      <ProFormText
+        name={'id'}
+        hidden={true}
+      />
+      #foreach($field in $fields)
+        <ProFormText
+          name={'$field.name'}
+          label={'$field.comment'}
+          required
+          rules={[
+            {
+              required: true,
+            }
+          ]}
+        />
+      #end
+    </DrawerForm>);
+};
+export default $!{className}Form;

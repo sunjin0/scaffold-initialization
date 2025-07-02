@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
+import static com.scaffold.scaffoldinitialization.config.getVelocityEngine;
+
 public class CodeGenerator {
     // 多模块名称
     private static final String MODULE_API = "api";
@@ -82,19 +84,7 @@ public class CodeGenerator {
         System.out.println("✅ 项目代码生成完成！");
     }
 
-    /**
-     * 初始化 Velocity 引擎
-     */
-    private static VelocityEngine getVelocityEngine() {
-        Properties props = new Properties();
-        props.setProperty("resource.loader", "class");
-        props.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
-        props.setProperty("input.encoding", "UTF-8");
-        props.setProperty("output.encoding", "UTF-8");
-        VelocityEngine ve = new VelocityEngine(props);
-        ve.init();
-        return ve;
-    }
+
 
     /**
      * 创建基础项目结构（src, pom.xml等）

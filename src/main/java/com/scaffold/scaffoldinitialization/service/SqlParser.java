@@ -110,6 +110,19 @@ public class SqlParser {
             default -> "Object";
         };
     }
+    /**
+     * 将javaType转换为ts类型
+     * @param javaType java类型
+     * @return ts类型
+     */
+    public static String convertToTsType(String javaType) {
+        return switch (javaType) {
+            case "Long", "Integer", "Short", "Byte", "Double", "Float" -> "number";
+            case "String" -> "string";
+            case "Boolean" -> "boolean";
+            default -> "any";
+        };
+    }
 
 
     /**
