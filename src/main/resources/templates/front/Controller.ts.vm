@@ -1,0 +1,72 @@
+import {request} from "@umijs/max";
+/**
+ * ${classComment}查询参数
+ * @since ${now}
+ */
+interface SearchParams extends ${className} {
+    id: string;
+    current: number;
+    pageSize: number;
+}
+/**
+ * ${classComment}实体
+ * @since ${now}
+ */
+interface ${className} {
+    #foreach($field in $fields)
+            ${field.name} : ${field.type};
+    #end
+}
+/**
+ * 查询${classComment}信息
+ * @param params 查询参数
+ * @since ${now}
+ * @returns 查询结果
+ */
+export const get${className}Info = async (params: SearchParams) => {
+    let {data} = await request(`/api/${path}/info`, {
+        method: 'get',
+        params: params,
+
+    });
+    return data
+}
+/**
+ * 新增${classComment}信息
+ * @param params 新增参数
+ * @since ${now}
+ * @returns 新增结果
+ */
+export const add${className}Info = async (params: ${className}) => {
+    let {data} = await request(`/api/${path}/add`, {
+        method: 'post',
+        data: params,
+    });
+    return data
+}
+/**
+ * 修改${classComment}信息
+ * @param params 修改参数
+ * @since ${now}
+ * @returns 修改结果
+ */
+export const update${className}Info = async (params: ${className}) => {
+    let {data} = await request(`/api/${path}/update`, {
+        method: 'post',
+        data: params,
+    })
+    return data
+}
+/**
+ * 删除${classComment}信息
+ * @param params 删除参数
+ * @since ${now}
+ * @returns 删除结果
+ */
+export const delete${className}Info = async (params: SearchParams) => {
+    let {data} = await request(`/api/${path}/delete`, {
+        method: 'get',
+        params: params,
+    })
+    return data
+}

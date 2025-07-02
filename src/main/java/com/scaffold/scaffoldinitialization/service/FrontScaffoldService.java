@@ -8,11 +8,9 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +49,56 @@ public class FrontScaffoldService {
         VelocityEngine ve = getVelocityEngine();
         for (TableInfo table : tableInfos) {
             //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
-            FileCopyUtil.copyDirectory(new File("D:\\porject\\scaffold-initialization\\src\\main\\resources\\templates\\front\\base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
+            FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
+            //生成service文件
+            generateController(ve, "Controller.ts.vm", table);
             //生成页面文件，表单文件
             generateForm(table, ve);
         }
         //路由生成
         generateRouter(tableInfos, ve);
         System.out.println("✅ 项目代码生成完成！");
+
+    }
+
+    private static void generateController(VelocityEngine ve, String templateName, TableInfo table) {
+        String templates = TEMPLATE_DIR + "/" + templateName;
+        //创建模板
+        Template tpl = ve.getTemplate(templates, "UTF-8");
+        VelocityContext ctx = new VelocityContext();
+        //获取文件名
+        String fieldName = String.format("%sController.ts", table.getClassName());
+        //输出文件路径
+        String basePath = OUTPUT_DIR + PROJECT_ROOT + "/src/services/";
+        // 输出文件
+        String outputFilePath = basePath + fieldName;
+        if (table.getPrefix() != null) {
+            ctx.put("path", String.format("%s/%s", table.getPrefix(), table.getServiceName()));
+            outputFilePath = basePath + String.format("%s/%sController.ts", table.getPrefix(), table.getClassName());
+        } else {
+            ctx.put("path", table.getServiceName());
+        }
+        File outFile = new File(outputFilePath);
+        //创建父目录
+        File parentFile = outFile.getParentFile();
+        if (!parentFile.exists())
+            parentFile.mkdirs();
+
+        ctx.put("className", table.getClassName());
+        List<TableInfo.FieldInfo> fields = table.getFields();
+        //将java类型转换为ts类型
+        fields.forEach(field -> field.setType(SqlParser.convertToTsType(field.getType())));
+        ctx.put("fields", fields);
+        ctx.put("classComment", table.getClassComment());
+        //获取时间格式转换对象
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        ctx.put("now", simpleDateFormat.format(System.currentTimeMillis()));
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+            tpl.merge(ctx, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("📄 生成文件：" + outputFilePath);
 
     }
 
