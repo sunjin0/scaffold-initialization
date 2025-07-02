@@ -22,12 +22,12 @@ export default [
       {
         path: '/msg/sms',
         name: '短信管理',
-        component: './Message/Sms',
+        component: './message/sms',
       },
       {
         path: '/msg/email',
         name: '邮件管理',
-        component: './Message/Email',
+        component: './message/email',
       },
     ],
   },
@@ -39,22 +39,22 @@ export default [
       {
         path: '/sys/admin',
         name: '用户管理',
-        component: './Sys/Admin',
+        component: './sys/admin',
       },
       {
         path: '/sys/role',
         name: '角色管理',
-        component: './Sys/Role',
+        component: './sys/role',
       },
       {
         path: '/sys/resource',
         name: '资源管理',
-        component: './Sys/Resource',
+        component: './sys/resource',
       },
       {
         path: '/sys/dict',
         name: '字典管理',
-        component: './Sys/Dict',
+        component: './sys/dict',
       },
     ],
   },

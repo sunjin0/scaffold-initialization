@@ -1,4 +1,4 @@
-package com.scaffold.scaffoldinitialization;
+package com.scaffold.scaffoldinitialization.utils;
 
 import org.apache.velocity.app.VelocityEngine;
 

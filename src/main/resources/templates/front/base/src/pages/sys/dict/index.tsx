@@ -5,7 +5,7 @@ import {request, useIntl} from "@umijs/max";
 import {Button, message, Popconfirm} from "antd";
 import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
-import DictForm from "@/pages/Sys/dict/DictForm";
+import DictForm from "@/pages/sys/dict/DictForm";
 import {history, useAccess} from "@@/exports";
 
 const Dict: React.FC = () => {

@@ -3,7 +3,7 @@ import React, {useRef, useState} from "react";
 import {ActionType, PageContainer, ProTable} from "@ant-design/pro-components";
 import {request, useIntl, history} from "@umijs/max";
 import {Button, Image, message, Popconfirm} from "antd";
-import AdminForm from "@/pages/Sys/admin/AdminForm";
+import AdminForm from "@/pages/sys/admin/AdminForm";
 import {useAccess} from "@@/exports";
 
 const Admin: React.FC = () => {

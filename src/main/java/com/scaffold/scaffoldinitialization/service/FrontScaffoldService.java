@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.scaffold.scaffoldinitialization.config.getVelocityEngine;
+import static com.scaffold.scaffoldinitialization.utils.config.getVelocityEngine;
 
 /**
  * 前端脚手架服务
@@ -28,48 +28,47 @@ public class FrontScaffoldService {
     // 模板目录
     private static final String TEMPLATE_DIR = "templates/front";
     // 项目根目录
-    private static final String PROJECT_ROOT = "hy-ui";
+    private static String PROJECT_ROOT = "hy-ui";
     // 输出目录
-    private static final String OUTPUT_DIR = "D:\\project\\";
-    // SQL文件路径
-    private final static String SQL_PATH = "huayou_3.9.sql";
+    private static String OUTPUT_DIR = "D:\\project\\";
 
-    public static void main(String[] args) throws Exception {
-        ArrayList<TableInfo> tableInfos = SqlParser.parseSql(SQL_PATH);
-        generateFrontScaffold(tableInfos);
-    }
 
     /**
      * 生成前脚手架
      *
-     * @param tableInfos 表格信息
+     * @param projectName 项目名称
+     * @param tableInfos  表格信息
+     * @param outputDir   输出目录 比如D:\\project
      * @throws Exception 例外
      */
-    public static void generateFrontScaffold(ArrayList<TableInfo> tableInfos) throws Exception {
+    public static void generateFrontScaffold(String projectName,
+                                             ArrayList<TableInfo> tableInfos,
+                                             String outputDir) throws Exception {
+        PROJECT_ROOT = projectName;
+        OUTPUT_DIR = outputDir;
         VelocityEngine ve = getVelocityEngine();
         for (TableInfo table : tableInfos) {
             //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
             FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
             //生成service文件
-            generateController(ve, "Controller.ts.vm", table);
+            generateController(ve, table);
             //生成页面文件，表单文件
             generateForm(table, ve);
         }
         //路由生成
         generateRouter(tableInfos, ve);
-        System.out.println("✅ 项目代码生成完成！");
+        System.out.println("✅ 前端项目代码生成完成！");
 
     }
 
     /**
      * 生成控制器
      *
-     * @param ve           ve
-     * @param templateName 模板名称
-     * @param table        桌子
+     * @param ve    ve
+     * @param table 桌子
      */
-    private static void generateController(VelocityEngine ve, String templateName, TableInfo table) {
-        String templates = TEMPLATE_DIR + "/" + templateName;
+    private static void generateController(VelocityEngine ve, TableInfo table) {
+        String templates = TEMPLATE_DIR + "/" + "Controller.ts.vm";
         //创建模板
         Template tpl = ve.getTemplate(templates, "UTF-8");
         VelocityContext ctx = new VelocityContext();

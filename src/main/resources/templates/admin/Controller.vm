@@ -1,9 +1,9 @@
 package ${packageName}.controller;
 
 import ${packageName}.entity.${className};
+import ${packageName2}.entity.WebResponse;
 import ${packageName}.service.${className}Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
 
@@ -12,7 +12,7 @@ import java.util.List;
 
 @Api(tags = "${classComment}控制器")
 @RestController
-@RequestMapping("/api/${className}")
+@RequestMapping("/api/${prefix}${serviceName}")
 public class ${className}Controller {
 
     @Autowired
@@ -22,35 +22,33 @@ public class ${className}Controller {
      * 查询所有
      */
     @ApiOperation("查询所有")
-    @GetMapping
-    public ResponseEntity<List<${className}>> list() {
-        return ResponseEntity.ok(${serviceName}Service.list());
+    @PostMapping("/list")
+    public WebResponse<List<${className}>> list() {
+        return WebResponse.OK(${serviceName}Service.list());
     }
 
     /**
      * 新增
      */
     @ApiOperation("新增")
-    @PostMapping
-    public ResponseEntity<Boolean> add(@RequestBody ${className} entity) {
-        return ResponseEntity.ok(${serviceName}Service.save(entity));
+    @PostMapping("/add")
+    public WebResponse<Boolean> add(@RequestBody ${className} entity) {
+        return WebResponse.OK(${serviceName}Service.save(entity));
     }
-
     /**
      * 删除
      */
     @ApiOperation("删除")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
-        return ResponseEntity.ok(${serviceName}Service.removeById(id));
+    @GetMapping("/delete")
+    public WebResponse<Boolean> delete(@RequestParam String id) {
+        return WebResponse.OK(${serviceName}Service.removeById(id));
     }
-
     /**
      * 修改
      */
     @ApiOperation("修改")
-    @PutMapping
-    public ResponseEntity<Boolean> update(@RequestBody ${className} entity) {
-        return ResponseEntity.ok(${serviceName}Service.updateById(entity));
+    @PutMapping("/update")
+    public WebResponse<Boolean> update(@RequestBody ${className} entity) {
+        return WebResponse.OK(${serviceName}Service.updateById(entity));
     }
 }

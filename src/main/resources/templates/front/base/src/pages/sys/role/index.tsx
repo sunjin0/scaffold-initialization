@@ -1,68 +1,45 @@
 import React, {useRef, useState} from "react";
 
 import {ActionType, PageContainer, ProTable} from "@ant-design/pro-components";
-import {request, useIntl} from "@umijs/max";
 import {Button, message, Popconfirm} from "antd";
-import ResourceForm from "@/pages/Sys/resource/ResourceForm";
-import {FormattedMessage} from "@@/plugin-locale";
+import {request, useIntl} from "@umijs/max";
+import RoleForm from "@/pages/sys/role/RoleForm";
 import {PlusOutlined} from "@ant-design/icons";
-import {history, useAccess} from "@@/exports";
+import {FormattedMessage, history, useAccess} from "@@/exports";
+import AuthorizationForm from "@/pages/sys/role/AuthorizationForm";
 
-const Resource: React.FC = () => {
-  const [open, setOpen] = useState(false);
-  const [id, setId] = useState(undefined);
-  const ref = useRef<ActionType>()
+const Role: React.FC = () => {
   const intl = useIntl()
+  const [open, setOpen] = useState(false)
+  const [authorizationOpen, setAuthorizationOpen]= useState(false)
+  const [id, setId] = useState(undefined)
+  const ref = useRef<ActionType>()
   const permissionMap = useAccess();
   const path = history.location.pathname
   const write = permissionMap[path]
-  const columns: any = [
-
+  const columns: any[] = [
     {
-      title: intl.formatMessage({id: 'pages.common.name.en'}),
+      title: intl.formatMessage({id: 'pages.common.name'}),
       dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: intl.formatMessage({id: 'pages.common.name.zh'}),
-      dataIndex: 'nameCn',
-      key: 'nameCn',
-    },
-    {
-      title: intl.formatMessage({id: 'pages.sys.resource.menu.path'}),
-      dataIndex: 'path',
-      width: 200,
-      key: 'path',
-    },
-    {
-      title: intl.formatMessage({id: 'pages.common.type'}),
-      dataIndex: 'type',
-      valueType: 'select',
-      request: async () => {
-        const {data} = await request("/api/chat/system/sys-dict/options", {method: 'GET', params: {parentCode: 'Resource_Type'}});
-        return data;
-      },
-      key: 'type',
+      valueType: 'text',
     },
     {
       title: intl.formatMessage({id: 'pages.common.description'}),
       dataIndex: 'description',
-      key: 'description',
+      valueType: 'text',
     },
     {
-      title: intl.formatMessage({id: 'pages.common.sort.number'}),
-      dataIndex: 'sortNum',
-      key: 'sortNum',
-      hideInSearch: true,
+      title: intl.formatMessage({id: 'pages.common.createTime'}),
+      dataIndex: 'createAt',
+      valueType: 'dateTime',
+      hideInSearch: true
     },
     {
-
       title: intl.formatMessage({id: 'pages.common.option'}),
+      dataIndex: 'option',
       valueType: 'option',
-      key: 'option',
-      // 固定
       fixed: 'right',
-      render: (text: any, record: Record<any, any>, _: any, action: any) =>write&& [
+      render: (_: any, record: any) =>write&& [
         <Button
           type={'link'}
           key="editable"
@@ -73,20 +50,27 @@ const Resource: React.FC = () => {
         >
           {intl.formatMessage({id: 'pages.common.edit'})}
         </Button>,
+        <Button
+          type={'link'}
+          key="auth"
+          onClick={() => {
+            setId(record.id)
+            setAuthorizationOpen(true)
+          }}
+        >
+          {intl.formatMessage({id: 'pages.sys.auth.role.resource'})}
+        </Button>,
         <Popconfirm
           key={'delete'}
           title={intl.formatMessage({id: 'pages.confirm.delete'})}
           onConfirm={async () => {
-            const {code, message: msg} = await request('/api/chat/system/sys-resource/delete', {
-              method: 'GET',
-              params: {id: record.id}
-            });
-            action?.reload()
+            const {code, message: msg} = await request('/api/chat/system/sys-role/delete', {params: {id: record.id}});
             if (code === 200) {
               message.success(msg)
             } else {
               message.error(msg)
             }
+            ref.current?.reload()
           }}
         >
           <Button type={'link'}
@@ -100,10 +84,6 @@ const Resource: React.FC = () => {
   return (
     <PageContainer>
       <ProTable
-        actionRef={ref}
-        request={async (params) => {
-          return await request('/api/chat/system/sys-resource/list', {method: 'POST', data: params})
-        }}
         toolBarRender={() =>write&& [
           <Button
             key="button"
@@ -117,19 +97,36 @@ const Resource: React.FC = () => {
             <FormattedMessage id="pages.common.new"/>
           </Button>,
         ]}
+        actionRef={ref}
+        request={async (params) => {
+          return await request('/api/chat/system/sys-role/list', {method: 'POST', data: params})
+        }}
         columns={columns}
+        rowKey="id"
       />
-      <ResourceForm
+      <RoleForm
+        key="role"
         id={id}
         open={open}
         setOpen={setOpen}
         onSuccess={() => {
           setId(undefined)
           ref.current?.reload()
+        }}/>
+      <AuthorizationForm
+        key="authorization"
+        id={id}
+        open={authorizationOpen}
+        setOpen={(open)=>{
+          if (!open)
+            setId(undefined)
+          setAuthorizationOpen(open)
         }}
-      />
+        onSuccess={() => {
+          setId(undefined)
+        }}/>
     </PageContainer>
   );
 };
 
-export default Resource;
+export default Role;
