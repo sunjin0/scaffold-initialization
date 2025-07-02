@@ -22,5 +22,8 @@ public class Routes {
      * 元件
      */
     private String component;
+    /**
+     * 路线
+     */
     private List<Routes> routes;
 }

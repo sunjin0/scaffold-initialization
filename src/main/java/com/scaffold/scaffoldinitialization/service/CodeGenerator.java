@@ -5,12 +5,12 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.*;
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
 
 import static com.scaffold.scaffoldinitialization.config.getVelocityEngine;
 
@@ -85,7 +85,6 @@ public class CodeGenerator {
     }
 
 
-
     /**
      * 创建基础项目结构（src, pom.xml等）
      */
@@ -131,10 +130,10 @@ public class CodeGenerator {
         // 生成Api模块配置文件 api/application.yml,api/application-dev.yml,api/application-prod.yml
         VelocityContext ctx = new VelocityContext();
         String[][] templateMapping = new String[][]{
-                {"baseConfig/api/application.yml.vm", "application.yml"},
-                {"baseConfig/api/application-dev.yml.vm", "application-dev.yml"},
-                {"baseConfig/api/application-prod.yml.vm", "application-prod.yml"},
-                {"baseConfig/api/application-test.yml.vm", "application-test.yml"},
+                {"admin/api/application.yml.vm", "application.yml"},
+                {"admin/api/application-dev.yml.vm", "application-dev.yml"},
+                {"admin/api/application-prod.yml.vm", "application-prod.yml"},
+                {"admin/api/application-test.yml.vm", "application-test.yml"},
         };
         generateMultipleConfigFiles(ve, MODULE_API, "src/main/resources", templateMapping, ctx);
         generateModulePom(ve, MODULE_BIZ);
@@ -142,67 +141,67 @@ public class CodeGenerator {
         //将基础配置文件
         templateMapping = new String[][]{
                 {
-                        "baseConfig/common/config/AsyncConfig.java.vm", "config/AsyncConfig.java"
+                        "admin/common/config/AsyncConfig.java.vm", "config/AsyncConfig.java"
                 },
                 {
-                        "baseConfig/common/config/MyBatisPlusConfig.java.vm", "config/MyBatisPlusConfig.java"
+                        "admin/common/config/MyBatisPlusConfig.java.vm", "config/MyBatisPlusConfig.java"
                 },
                 {
-                        "baseConfig/common/config/MyLocaleResolver.java.vm", "config/MyLocaleResolver.java"
+                        "admin/common/config/MyLocaleResolver.java.vm", "config/MyLocaleResolver.java"
                 },
                 {
-                        "baseConfig/common/config/MyMetaObjectHandler.java.vm", "config/MyMetaObjectHandler.java"
+                        "admin/common/config/MyMetaObjectHandler.java.vm", "config/MyMetaObjectHandler.java"
                 },
                 {
-                        "baseConfig/common/config/WebConfig.java.vm", "config/WebConfig.java"
+                        "admin/common/config/WebConfig.java.vm", "config/WebConfig.java"
                 },
                 {
-                        "baseConfig/common/convert/Convert.java.vm", "convert/Convert.java"
+                        "admin/common/convert/Convert.java.vm", "convert/Convert.java"
                 },
                 //exception
                 {
-                        "baseConfig/common/exception/GlobalException.java.vm", "exception/GlobalException.java"
+                        "admin/common/exception/GlobalException.java.vm", "exception/GlobalException.java"
                 },
                 {
-                        "baseConfig/common/exception/ServerException.java.vm", "exception/ServerException.java"
+                        "admin/common/exception/ServerException.java.vm", "exception/ServerException.java"
                 },
                 //i18
                 {
-                        "baseConfig/common/i18n/I18nService.java.vm", "i18n/I18nService.java"
+                        "admin/common/i18n/I18nService.java.vm", "i18n/I18nService.java"
                 },
                 {
-                        "baseConfig/common/i18n/I18nServiceImpl.java.vm", "i18n/I18nServiceImpl.java"
+                        "admin/common/i18n/I18nServiceImpl.java.vm", "i18n/I18nServiceImpl.java"
                 },
                 {
-                        "baseConfig/common/i18n/I18nUtils.java.vm", "i18n/I18nUtils.java"
+                        "admin/common/i18n/I18nUtils.java.vm", "i18n/I18nUtils.java"
                 },
                 //interceptor
                 {
-                        "baseConfig/common/interceptor/GlobalInterceptor.java.vm", "interceptor/GlobalInterceptor.java"
+                        "admin/common/interceptor/GlobalInterceptor.java.vm", "interceptor/GlobalInterceptor.java"
                 },
                 //local
                 {
-                        "baseConfig/common/local/CurrentUser.java.vm", "local/CurrentUser.java"
+                        "admin/common/local/CurrentUser.java.vm", "local/CurrentUser.java"
                 },
                 //utils
                 {
-                        "baseConfig/common/utils/AesUtils.java.vm", "utils/AesUtil.java"
+                        "admin/common/utils/AesUtils.java.vm", "utils/AesUtil.java"
                 },
                 {
-                        "baseConfig/common/utils/TokenUtils.java.vm", "utils/TokenUtils.java"
+                        "admin/common/utils/TokenUtils.java.vm", "utils/TokenUtils.java"
                 },
                 //validator
                 {
-                        "baseConfig/common/validator/FieldRule.java.vm", "validator/FieldRule.java"
+                        "admin/common/validator/FieldRule.java.vm", "validator/FieldRule.java"
                 },
                 {
-                        "baseConfig/common/validator/GenericValidator.java.vm", "validator/GenericValidator.java"
+                        "admin/common/validator/GenericValidator.java.vm", "validator/GenericValidator.java"
                 },
                 {
-                        "baseConfig/common/validator/Type.java.vm", "validator/Type.java"
+                        "admin/common/validator/Type.java.vm", "validator/Type.java"
                 },
                 {
-                        "baseConfig/common/validator/ValidEntity.java.vm", "validator/ValidEntity.java"
+                        "admin/common/validator/ValidEntity.java.vm", "validator/ValidEntity.java"
                 }
         };
         ctx.put("packageName", PACKAGE_NAME);
