@@ -7,10 +7,11 @@ import $!{className}Form from "@/pages/$!{packName}/$!{className}Form";
 import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
 import {history, useAccess} from "@@/exports";
+import {get$!{className}List,delete$!{className}Info,SearchParams} from "@/services/${prefix}$!{className}Controller";
 /**
 *
-*@description $!{classComment}
-*@since $!{classComment}
+*@description $!{classComment}页面
+*@since $!{since}
 */
 const ${className}: React.FC = () => {
 const [open, setOpen] = useState(false);
@@ -51,18 +52,7 @@ const ref = useRef<ActionType>()
     <Popconfirm
             key={'delete'}
             title={intl.formatMessage({id: 'pages.confirm.delete'})}
-    onConfirm={async () => {
-    const {code, message: msg} = await request('/api/chat/system/sys-resource/delete', {
-    method: 'GET',
-    params: {id: record.id}
-    });
-    action?.reload()
-    if (code === 200) {
-    message.success(msg)
-    } else {
-    message.error(msg)
-    }
-    }}
+    onConfirm={async () => delete$!{className}Info({id: record.id})}
     >
     <Button type={'link'}
             key={'delete'}>
@@ -76,9 +66,7 @@ const ref = useRef<ActionType>()
     <PageContainer>
         <ProTable
                 actionRef={ref}
-                request={async (params) => {
-            return await request('/api/chat/system/sys-resource/list', {method: 'POST', data: params})
-            }}
+                request={async (params) => get$!{className}List(params as SearchParams)}
             toolBarRender={() =>write&& [
             <Button
                     key="button"

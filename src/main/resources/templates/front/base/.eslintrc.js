@@ -62,26 +62,26 @@ module.exports = {
     semi: ['warn', 'never'],
 
     // import 排序与路径规范
-    'import/order': [
-      'warn',
-      {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-        pathGroups: [
-          {
-            pattern: '@/**',
-            group: 'internal',
-            position: 'after',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['builtin'],
-        'newlines-between': 'always',
-        alphabetize: {
-          order: 'asc',
-          caseInsensitive: true,
-        },
-      },
-    ],
-    'import/no-duplicates': 'warn',
+    // 'import/order': [
+    //   'warn',
+    //   {
+    //     groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+    //     pathGroups: [
+    //       {
+    //         pattern: '@/**',
+    //         group: 'internal',
+    //         position: 'after',
+    //       },
+    //     ],
+    //     pathGroupsExcludedImportTypes: ['builtin'],
+    //     'newlines-between': 'always',
+    //     alphabetize: {
+    //       order: 'asc',
+    //       caseInsensitive: true,
+    //     },
+    //   },
+    // ],
+    // 'import/no-duplicates': 'warn',
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
   },

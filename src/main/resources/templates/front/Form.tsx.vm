@@ -1,8 +1,13 @@
 import DrawerForm from "@/components/DrawerForm";
-import {request, useIntl} from "@umijs/max";
-import {message} from "antd";
+import { useIntl} from "@umijs/max";
+import {Form} from "antd";
 import {ProFormText} from "@ant-design/pro-components";
-
+import {get$!{className}Info,add$!{className}Info,update$!{className}Info} from "@/services/${prefix}$!{className}Controller";
+/**
+ *
+ *@description $!{classComment}表单
+ *@since $!{since}
+ */
 const $!{className}Form = (props: {
   id: any;
   open?: boolean;
@@ -17,11 +22,17 @@ const $!{className}Form = (props: {
       open={open}
       setOpen={setOpen}
       id={id}
-      request={async (params) => await request('/api/chat/system/sys-admin/info', {params: {id: params}})}
+      request={async (params) => get$!{className}Info(params)}
+      form={form}
       onSuccess={async (values) => {
+        if(id){
+          await update$!{className}Info(values)
+        }else{
+          await add$!{className}Info(values)
+        }
+          onSuccess()
           return true
       }}
-      form={form}
     >
       <ProFormText
         name={'id'}

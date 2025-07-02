@@ -61,6 +61,13 @@ public class FrontScaffoldService {
 
     }
 
+    /**
+     * 生成控制器
+     *
+     * @param ve           ve
+     * @param templateName 模板名称
+     * @param table        桌子
+     */
     private static void generateController(VelocityEngine ve, String templateName, TableInfo table) {
         String templates = TEMPLATE_DIR + "/" + templateName;
         //创建模板
@@ -175,7 +182,9 @@ public class FrontScaffoldService {
         ctx.put("serviceName", table.getServiceName());
         ctx.put("classComment", table.getClassComment());
         ctx.put("fields", table.getFields());
-        ctx.put("since", System.currentTimeMillis());
+        ctx.put("since", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()));
+        ctx.put("prefix", table.getPrefix() + "/");
+
         if (!tplName.equals("Form.tsx.vm")) {
             ctx.put("packName", table.getPrefix() + "/" + table.getServiceName());
         }
