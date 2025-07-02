@@ -59,7 +59,9 @@ public class AdminScaffoldService {
         for (TableInfo table : tables) {
             CodeGenerator(table, ve);
         }
-        //创建启动 文件
+        // 5.权限基础代码
+
+        // 6.创建启动 文件
         TableInfo tableOne = tables.get(0);
         TableInfo table = new TableInfo();
         table.setPackageName(tableOne.getPackageName());
