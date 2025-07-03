@@ -1,0 +1,20 @@
+package ${packageName}.service;
+
+import ${packageName}.entity.Resource;
+import ${packageName}.vo.ResourceVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+
+
+/**
+ * <p>
+ * 资源表 服务类
+ * </p>
+ *
+ * @author sun
+ * @since 2024-11-12
+ */
+public interface ResourceService extends IService<Resource> {
+
+    Page<ResourceVo> list(ResourceVo resource);
+}

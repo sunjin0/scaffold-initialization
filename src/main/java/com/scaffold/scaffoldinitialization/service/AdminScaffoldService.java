@@ -59,8 +59,8 @@ public class AdminScaffoldService {
         for (TableInfo table : tables) {
             CodeGenerator(table, ve);
         }
-        // 5.权限基础代码
-
+        // 5.权限邮件基础代码
+        generateSysFiles(ve);
         // 6.创建启动 文件
         TableInfo tableOne = tables.get(0);
         TableInfo table = new TableInfo();
@@ -70,6 +70,101 @@ public class AdminScaffoldService {
         generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), table.getServiceName()));
 
         System.out.println("✅ 后台项目代码生成完成！");
+    }
+
+    private static void generateSysFiles(VelocityEngine ve) {
+        String[][] sysTemplateMapping = getSysTemplateMapping();
+        VelocityContext context = new VelocityContext();
+        context.put("packageName", PACKAGE_NAME + ".sys");
+        context.put("packageName2", PACKAGE_NAME);
+        String packageName = PACKAGE_NAME.replace('.', '/');
+
+        for (String[] mapping : sysTemplateMapping) {
+            String templatePath = mapping[0];
+            String targetFileName = mapping[1];
+            String targetSubDir = "src/main/java/" + packageName + "/sys/";
+            if (templatePath.contains("entity")
+                    || templatePath.contains("vo")
+                    || templatePath.contains("service")
+                    || templatePath.contains("mapper")) {
+                generateConfigFileFromTemplate(ve,
+                        MODULE_API,
+                        templatePath,
+                        targetSubDir,
+                        targetFileName,
+                        context);
+            } else if (templatePath.contains("impl")) {
+                generateConfigFileFromTemplate(ve,
+                        MODULE_BIZ,
+                        templatePath,
+                        targetSubDir,
+                        targetFileName,
+                        context);
+            } else if (templatePath.contains("controller")) {
+                generateConfigFileFromTemplate(ve,
+                        MODULE_ADMIN,
+                        templatePath,
+                        targetSubDir,
+                        targetFileName,
+                        context);
+            } else {
+                generateConfigFileFromTemplate(ve,
+                        MODULE_COMMON,
+                        templatePath,
+                        "src/main/java/" + packageName,
+                        targetFileName,
+                        context);
+            }
+        }
+
+    }
+
+    private static String[][] getSysTemplateMapping() {
+        return new String[][]{
+                //entity
+                {"admin/base/sys/entity/Dict.java.vm", "entity/Dict.java"},
+                {"admin/base/sys/entity/Resource.java.vm", "entity/Resource.java"},
+                {"admin/base/sys/entity/Role.java.vm", "entity/Role.java"},
+                {"admin/base/sys/entity/User.java.vm", "entity/User.java"},
+                {"admin/base/sys/entity/UserRole.java.vm", "entity/UserRole.java"},
+                {"admin/base/sys/entity/RoleResource.java.vm", "entity/RoleResource.java"},
+                //vo
+                {"admin/base/sys/vo/DictVo.java.vm", "vo/DictVo.java"},
+                {"admin/base/sys/vo/ResourceVo.java.vm", "vo/ResourceVo.java"},
+                {"admin/base/sys/vo/UserVo.java.vm", "vo/UserVo.java"},
+                {"admin/base/sys/vo/RoleResourceVo.java.vm", "vo/RoleResourceVo.java"},
+                // service
+                {"admin/base/sys/service/DictService.java.vm", "service/DictService.java"},
+                {"admin/base/sys/service/ResourceService.java.vm", "service/ResourceService.java"},
+                {"admin/base/sys/service/RoleService.java.vm", "service/RoleService.java"},
+                {"admin/base/sys/service/RoleResourceService.java.vm", "service/RoleResourceService.java"},
+                {"admin/base/sys/service/UserService.java.vm", "service/UserService.java"},
+                {"admin/base/sys/service/UserRoleService.java.vm", "service/UserRoleService.java"},
+                {"admin/base/sys/service/TokenService.java.vm", "service/TokenService.java"},
+                //impl
+                {"admin/base/sys/impl/DictServiceImpl.java.vm", "service/impl/DictServiceImpl.java"},
+                {"admin/base/sys/impl/ResourceServiceImpl.java.vm", "service/impl/ResourceServiceImpl.java"},
+                {"admin/base/sys/impl/RoleServiceImpl.java.vm", "service/impl/RoleServiceImpl.java"},
+                {"admin/base/sys/impl/RoleResourceServiceImpl.java.vm", "service/impl/RoleResourceServiceImpl.java"},
+                {"admin/base/sys/impl/UserServiceImpl.java.vm", "service/impl/UserServiceImpl.java"},
+                {"admin/base/sys/impl/UserRoleServiceImpl.java.vm", "service/impl/UserRoleServiceImpl.java"},
+                {"admin/base/sys/impl/TokenServiceImpl.java.vm", "service/impl/TokenServiceImpl.java"},
+                //mapper
+                {"admin/base/sys/mapper/DictMapper.java.vm", "mapper/DictMapper.java"},
+                {"admin/base/sys/mapper/ResourceMapper.java.vm", "mapper/ResourceMapper.java"},
+                {"admin/base/sys/mapper/RoleMapper.java.vm", "mapper/RoleMapper.java"},
+                {"admin/base/sys/mapper/RoleResourceMapper.java.vm", "mapper/RoleResourceMapper.java"},
+                {"admin/base/sys/mapper/UserMapper.java.vm", "mapper/UserMapper.java"},
+                {"admin/base/sys/mapper/UserRoleMapper.java.vm", "mapper/UserRoleMapper.java"},
+                {"admin/base/sys/mapper/TokenMapper.java.vm", "mapper/TokenMapper.java"},
+                //controller
+                {"admin/base/sys/controller/DictController.java.vm", "controller/DictController.java"},
+                {"admin/base/sys/controller/ResourceController.java.vm", "controller/ResourceController.java"},
+                {"admin/base/sys/controller/RoleController.java.vm", "controller/RoleController.java"},
+                {"admin/base/sys/controller/RoleResourceController.java.vm", "controller/RoleResourceController.java"},
+                {"admin/base/sys/controller/UserController.java.vm", "controller/UserController.java"},
+
+        };
     }
 
     /**
@@ -173,11 +268,11 @@ public class AdminScaffoldService {
         generateModulePom(ve, MODULE_BIZ);
         generateModulePom(ve, MODULE_COMMON);
         //将基础配置文件
-        templateMapping = getTemplateMapping();
+        templateMapping = getBaseTemplateMapping();
         ctx.put("packageName", PACKAGE_NAME);
         generateMultipleConfigFiles(ve,
                 MODULE_COMMON,
-                "src/main/java" + "/" + PACKAGE_NAME.replace(".", "/"),
+                "src/main/java/" + PACKAGE_NAME.replace(".", "/"),
                 templateMapping,
                 ctx);
         generateModulePom(ve, MODULE_ADMIN);
@@ -190,7 +285,7 @@ public class AdminScaffoldService {
      *
      * @return {@link String[][] }
      */
-    private static String[][] getTemplateMapping() {
+    private static String[][] getBaseTemplateMapping() {
         return new String[][]{
                 {
                         "admin/common/config/AsyncConfig.java.vm", "config/AsyncConfig.java"
@@ -270,11 +365,17 @@ public class AdminScaffoldService {
                 },
                 //token
                 {
-                        "admin/common/entity/SysToken.java.vm", "entity/SysToken.java"
+                        "admin/common/entity/Token.java.vm", "entity/Token.java"
                 },
                 //emums
                 {
                         "admin/common/enums/State.java.vm", "enums/State.java"
+                },
+                {
+                        "admin/common/enums/ResourceType.java.vm", "enums/ResourceType.java"
+                },
+                {
+                        "admin/common/enums/EmailType.java.vm", "enums/EmailType.java"
                 },
                 //permission
                 {

@@ -1,0 +1,72 @@
+package ${packageName}.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import ${packageName2}.entity.BaseEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.Accessors;
+
+
+/**
+ * <p>
+ * 资源表
+ * </p>
+ *
+ * @author sun
+ * @since 2024-11-12
+ */
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@TableName("sys_resource")
+public class Resource extends BaseEntity {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 资源id
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    private String id;
+
+    /**
+     * 资源名称（英文）
+     */
+    private String name;
+
+    /**
+     * 资源名称（中文）
+     */
+    private String nameCn;
+
+    /**
+     * 资源路径
+     */
+    private String path;
+
+    /**
+     * 类型
+     */
+    private String type;
+
+    /**
+     * 图标
+     */
+    private String icon;
+
+    /**
+     * 父级资源id
+     */
+    private Integer parentId;
+
+    /**
+     * 描述
+     */
+    private String description;
+
+
+}

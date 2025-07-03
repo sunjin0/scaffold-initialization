@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import ${packageName}.entity.SysToken;
+import ${packageName}.entity.Token;
 import ${packageName}.exception.ServerException;
 
 import java.util.Calendar;
@@ -26,9 +26,9 @@ public class TokenUtils {
      * 创建令牌
      *
      * @param payload 有效载荷
-     * @return {@link SysToken }
+     * @return {@link Token }
      */
-    public static SysToken createToken(Map<String, String> payload) {
+    public static Token createToken(Map<String, String> payload) {
         if (payload == null || payload.get("userId").isEmpty()) {
             throw new ServerException(400, "用户ID不能为空");
         }
@@ -42,7 +42,7 @@ public class TokenUtils {
         String token = builder.withExpiresAt(calendar.getTime()).sign(Algorithm.HMAC256(SECRET_KEY));
 
         // 返回token
-        return getSysToken(payload, token, createRefreshToken(payload));
+        return getToken(payload, token, createRefreshToken(payload));
 
     }
 
@@ -50,7 +50,7 @@ public class TokenUtils {
      * 创建刷新令牌
      *
      * @param payload 有效载荷
-     * @return {@link SysToken }
+     * @return {@link Token }
      */
     public static String createRefreshToken(Map<String, String> payload) {
 
@@ -98,23 +98,23 @@ public class TokenUtils {
     }
 
     /**
-     * 获取 SYS 令牌
+     * 获取 令牌
      *
      * @param payload      有效载荷
      * @param token        令 牌
      * @param refreshToken 刷新令牌
-     * @return {@link SysToken }
+     * @return {@link Token }
      */
-    private static SysToken getSysToken(Map<String, String> payload, String token, String refreshToken) {
-        SysToken sysToken = new SysToken();
-        sysToken.setUserId(Integer.valueOf(payload.get("userId")));
+    private static Token getToken(Map<String, String> payload, String token, String refreshToken) {
+        Token Token = new Token();
+        Token.setUserId(Integer.valueOf(payload.get("userId")));
         //加密令牌
-        sysToken.setToken(AesUtil.encrypt(token));
+        Token.setToken(AesUtil.encrypt(token));
         //加密刷新令牌
-        sysToken.setRefreshToken(AesUtil.encrypt(refreshToken));
-        sysToken.setState(1);
-        sysToken.setCreateAt(System.currentTimeMillis());
-        sysToken.setUpdateAt(System.currentTimeMillis());
-        return sysToken;
+        Token.setRefreshToken(AesUtil.encrypt(refreshToken));
+        Token.setState(1);
+        Token.setCreateAt(System.currentTimeMillis());
+        Token.setUpdateAt(System.currentTimeMillis());
+        return Token;
     }
 }
