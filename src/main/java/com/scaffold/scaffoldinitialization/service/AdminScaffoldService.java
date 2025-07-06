@@ -206,6 +206,7 @@ public class AdminScaffoldService {
                 {"admin/base/sys/entity/RoleResource.java.vm", "entity/RoleResource.java"},
                 //vo
                 {"admin/base/sys/vo/DictVo.java.vm", "vo/DictVo.java"},
+                {"admin/base/sys/vo/RoleVo.java.vm", "vo/RoleVo.java"},
                 {"admin/base/sys/vo/ResourceVo.java.vm", "vo/ResourceVo.java"},
                 {"admin/base/sys/vo/UserVo.java.vm", "vo/UserVo.java"},
                 {"admin/base/sys/vo/RoleResourceVo.java.vm", "vo/RoleResourceVo.java"},
