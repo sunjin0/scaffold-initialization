@@ -25,14 +25,6 @@ import lombok.experimental.Accessors;
 @TableName("sys_resource")
 public class Resource extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * 资源id
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    private String id;
-
     /**
      * 资源名称（英文）
      */

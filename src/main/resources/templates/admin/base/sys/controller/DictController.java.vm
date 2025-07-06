@@ -3,7 +3,7 @@ package ${packageName}.controller;
 import java.util.List;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${packageName2}.permission.Permission;
-import ${packageName}.service.dictService;
+import ${packageName}.service.DictService;
 import ${packageName2}.entity.Option;
 import ${packageName2}.entity.WebResponse;
 import ${packageName}.entity.Dict;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public class DictController {
     private final DictService dictService;
 
-    public SysDictController(DictService dictService) {
+    public DictController(DictService dictService) {
         this.dictService = dictService;
     }
 

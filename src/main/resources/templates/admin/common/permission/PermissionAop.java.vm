@@ -1,16 +1,18 @@
-package ${packageName}..permission;
+package ${packageName}.permission;
 
-import ${packageName}.api.service.sys.SysUserService;
 import ${packageName}.exception.ServerException;
 import  ${packageName}.i18n.I18nUtils;
-import com.sun.project.common.vo.sys.SysUserVo;
+import ${packageName}.local.CurrentUser;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import javax.annotation.Resource;
 import java.lang.reflect.Method;
 
@@ -24,7 +26,7 @@ import java.lang.reflect.Method;
 @Aspect
 public class PermissionAop {
     @Resource
-    private SysUserService sysUserService;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Pointcut("@within(${packageName}.permission.Permission) || @annotation(${packageName}.permission.Permission)")
     public void pointcut() {
@@ -53,17 +55,21 @@ public class PermissionAop {
         if (!required)
             return;
 
-        SysUserVo detail = sysUserService.detail();
-        if (detail != null && detail.getPermissionMap() != null) {
-            Boolean permission = (Boolean) detail.getPermissionMap().get(path);
-            // 判断是否是读操作
-            if (permission != null && type == Permission.Type.Read) {
-                return;
-            }
-            // 判断是否是写操作
-            if (permission != null && type == Permission.Type.Write && permission) {
-                return;
-            }
+        HashMap<String, String> user = CurrentUser.getUser();
+        if (user == null) {
+            throw new ServerException(401, I18nUtils.getMessage("auth.error.no.login"));
+        }
+        String userId = user.get("userId");
+        HashOperations<String, Object, Object> operations = redisTemplate.opsForHash();
+
+        Boolean permission = (Boolean) operations.get(userId, path);
+        // 判断是否是读操作
+        if (permission != null && type == Permission.Type.Read) {
+            return;
+        }
+        // 判断是否是写操作
+        if (permission != null && type == Permission.Type.Write && permission) {
+            return;
         }
         throw new ServerException(403, I18nUtils.getMessage("auth.error.no.permission"));
     }

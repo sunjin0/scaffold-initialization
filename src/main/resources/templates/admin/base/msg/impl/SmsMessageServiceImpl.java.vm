@@ -1,11 +1,12 @@
-package ${packageName}.impl;
+package ${packageName}.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ${packageName}.entity.Sms;
-import ${packageName}.enums.State;
-import ${packageName}.exception.ServerException;
+import ${packageName}.vo.SmsVo;
+import ${packageName2}.enums.State;
+import ${packageName2}.exception.ServerException;
 import ${packageName}.mapper.SmsMessageMapper;
 import ${packageName}.service.SmsMessageService;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,7 @@ public class SmsMessageServiceImpl extends ServiceImpl<SmsMessageMapper, Sms> im
     }
 
     @Override
-    public Page<Sms> list(Sms message) throws ServerException {
+    public Page<Sms> list(SmsVo message) throws ServerException {
         return super.page(new Page<>(message.getCurrent(), message.getPageSize()),
                 Wrappers.lambdaQuery(Sms.class)
                         .eq(StringUtils.isNotBlank(message.getId()), Sms::getId, message.getId())

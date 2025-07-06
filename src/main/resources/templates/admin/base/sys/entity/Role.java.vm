@@ -25,14 +25,6 @@ import lombok.experimental.Accessors;
 @TableName("sys_role")
 public class Role extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * 角色id
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    private String id;
-
     /**
      * 角色名称
      */

@@ -16,9 +16,13 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SqlParser {
+    private static final String[] NOT_APPEND_FIELDS = {
+            "id", "createAt", "updateAt", "state", "deleted", "sortNum"
+    };
 
     /**
      * 解析 SQL
@@ -113,10 +117,17 @@ public class SqlParser {
     private static List<TableInfo.FieldInfo> mapColumnsToFieldInfos(List<ColumnDefinition> columnDefinitions) {
         List<TableInfo.FieldInfo> fieldInfos = new ArrayList<>(columnDefinitions.size());
         for (ColumnDefinition columnDefinition : columnDefinitions) {
+            String lowerCamelCase = toLowerCamelCase(columnDefinition.getColumnName());
+            String type = convertToJavaType(columnDefinition.getColDataType().getDataType());
+
             List<String> columnSpecs = columnDefinition.getColumnSpecs();
+            if (columnSpecs == null || columnSpecs.isEmpty() || Arrays.asList(NOT_APPEND_FIELDS).contains(lowerCamelCase)) {
+                continue;
+            }
+
             fieldInfos.add(new TableInfo.FieldInfo(
-                    toLowerCamelCase(columnDefinition.getColumnName()),
-                    convertToJavaType(columnDefinition.getColDataType().getDataType()),
+                    lowerCamelCase,
+                    type,
                     getString(columnSpecs.get(columnSpecs.size() - 1))
             ));
         }

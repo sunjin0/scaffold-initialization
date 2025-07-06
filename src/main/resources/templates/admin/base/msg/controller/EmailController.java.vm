@@ -1,9 +1,10 @@
 package ${packageName}.controller;
-import ${packageName}.permission.Permission;
-import ${packageName}.entity.WebResponse;
+import ${packageName2}.permission.Permission;
+import ${packageName2}.entity.WebResponse;
 import ${packageName}.entity.Email;
-import ${packageName}.enums.State;
-import ${packageName}.i18n.I18nUtils;
+import ${packageName}.vo.EmailVo;
+import ${packageName2}.enums.State;
+import ${packageName2}.i18n.I18nUtils;
 import ${packageName}.service.EmailMessageService;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.protobuf.ServiceException;
@@ -35,8 +36,8 @@ public class EmailController {
             }
     )
     @PostMapping("/list")
-    public WebResponse<List<Email>> list(@RequestBody Email message) throws ServiceException {
-        Page<Email> list = emailService.list(message);
+    public WebResponse<List<Email>> list(@RequestBody EmailVo email) throws ServiceException {
+        Page<Email> list = emailService.list(email);
         return WebResponse.Page(list.getRecords(), list.getTotal());
     }
 

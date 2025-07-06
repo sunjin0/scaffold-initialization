@@ -8,7 +8,7 @@ import ${packageName}.service.*;
 import ${packageName}.service.DictService;
 import ${packageName2}.entity.Token;
 import ${packageName2}.entity.BaseEntity;
-import ${packageName}.entity.msg.Email;
+import ${packageName2}.msg.entity.Email;
 import ${packageName}.entity.*;
 import ${packageName2}.enums.State;
 import ${packageName2}.enums.EmailType;
@@ -19,7 +19,7 @@ import ${packageName2}.local.CurrentUser;
 import ${packageName2}.utils.TokenUtils;
 import ${packageName}.vo.ResourceVo;
 import ${packageName}.vo.UserVo;
-import ${packageName}.email.service.EmailMessageService;
+import ${packageName2}.msg.service.EmailMessageService;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
@@ -104,12 +104,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Boolean resetPassword(UserVo user) throws ServerException {
         String password = user.getPassword();
         String oldPassword = user.getOldPassword();
-        user user = getOne(Wrappers.lambdaQuery(user.class)
-                .eq(user::getId, CurrentUser.getUser().get("userId"))
-                .eq(user::getState, State.Success.getCode()));
-        if (encoder.matches(oldPassword, user.getPassword())) {
-            user.setPassword(encoder.encode(password));
-            return updateById(user);
+        User dbUser = getOne(Wrappers.lambdaQuery(User.class)
+                .eq(User::getId, CurrentUser.getUser().get("userId"))
+                .eq(User::getState, State.Success.getCode()));
+        if (encoder.matches(oldPassword, dbUser.getPassword())) {
+            dbUser.setPassword(encoder.encode(password));
+            return updateById(dbUser);
         } else {
             throw new ServerException(400, I18nUtils.getMessage("user.password.error"));
         }
@@ -133,15 +133,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 检查手机号
             checkPhone(account);
         }
-        user user = getOne(query);
-        if (user != null && !encoder.matches(password, user.getPassword())) {
+        User dbUser = getOne(query);
+        if (dbUser != null && !encoder.matches(password, dbUser.getPassword())) {
             throw new ServerException(400, I18nUtils.getMessage("user.password.error"));
         }
         return true;
     }
 
     private void checkPhone(String account) throws ServerException {
-        user phone = this.getOne(Wrappers.lambdaQuery(User.class)
+        User phone = this.getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getPhone, account)
                 .eq(User::getState, State.Success.getCode()));
         if (phone == null) {
@@ -150,7 +150,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private void checkEmail(String account) throws ServerException {
-        user email = this.getOne(Wrappers.lambdaQuery(User.class)
+        User email = this.getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getEmail, account)
                 .eq(User::getState, State.Success.getCode()));
         if (email == null) {
@@ -166,7 +166,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 邮箱是否存在
         checkEmail(email);
         checkCode(email, verificationCode);
-        user one = getOne(Wrappers.lambdaQuery(User.class)
+        User one = getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getEmail, email)
                 .eq(User::getState, State.Success.getCode()));
         one.setPassword(null);
@@ -176,10 +176,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         payload.put("userId", user.getId());
         //角色
         payload.put("role", one.getType());
-        Token Token = TokenUtils.createToken(payload);
-        user.setToken(Token.getToken());
-        user.setRefreshToken(Token.getRefreshToken());
-        tokenService.saveOrUpdate(Token, Wrappers.lambdaUpdate(Token.class)
+        Token token = TokenUtils.createToken(payload);
+        user.setToken(token.getToken());
+        user.setRefreshToken(token.getRefreshToken());
+        tokenService.saveOrUpdate(token, Wrappers.lambdaUpdate(Token.class)
                 .eq(Token::getUserId, user.getId()));
         return user;
 
@@ -227,10 +227,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             // 3.获取资源
             Set<Integer> resourceIds = resources.stream().map(RoleResource::getResourceId).collect(Collectors.toSet());
-            List<ResourceVo> list = resourceService.list(Wrappers.<Resource>lambdaQuery()
-                    .eq(Resource::getState, State.Success.getCode())
-                    .in(Resource::getId, resourceIds)
-                    .orderByAsc(Resource::getSortNum)).stream().map(v -> {
+            List<ResourceVo> list = resourceService.list(Wrappers.lambdaQuery(com.hy.sys.entity.Resource.class)
+                    .eq(com.hy.sys.entity.Resource::getState, State.Success.getCode())
+                    .in(com.hy.sys.entity.Resource::getId, resourceIds)
+                    .orderByAsc(com.hy.sys.entity.Resource::getSortNum)).stream().map(v -> {
                 ResourceVo resourceVo = new ResourceVo();
                 BeanUtils.copyProperties(v, resourceVo);
                 String lng = I18nUtils.getMessage("lng");
@@ -259,8 +259,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
 
             // 6.设置权限标识
-            Collection<SysResourceVo> sysResourceVos = map.values();
-            routes = sysResourceVos.stream()
+            Collection<ResourceVo> resourceVos = map.values();
+            routes = resourceVos.stream()
                     .filter(item -> item.getType().equals(ResourceType.ROUTE.getCode()))
                     .filter(item -> item.getParentId() == 0)
                     .sorted(Comparator.comparing(BaseEntity::getSortNum))
@@ -291,7 +291,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (currentUser == null || currentUser.get("userId") == null) {
             return userVo;
         }
-        user user = this.getById(currentUser.get("userId"));
+        User user = this.getById(currentUser.get("userId"));
         user.setPassword(null);
         BeanUtils.copyProperties(user, userVo);
         List<ResourceVo> routers = this.getRouters();
@@ -321,7 +321,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Async
     @Override
     public void sendVerificationCode(String email) {
-        user user = this.getOne(Wrappers.<User>lambdaQuery()
+        User user = this.getOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getEmail, email)
                 .eq(User::getState, State.Success.getCode()));
         if (user == null) {
@@ -332,9 +332,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             Email.setEmail(email);
             Email.setCode(RandomUtils.nextInt(100000, 999999));
             Email.setType(EmailType.VERIFICATION_CODE.getCode());
-            SysDict subject = dictService.getByCode("email_template_login_subject", null);
+            Dict subject = dictService.getByCode("email_template_login_subject", null);
             Email.setSubject(subject.getName());
-            SysDict body = sysDictService.getByCode("email_template_login_content", null);
+            Dict body = dictService.getByCode("email_template_login_content", null);
             Email.setBody(body.getName().replace("${code}", Email.getCode().toString()));
             emailService.send(Email);
         } catch (ServerException e) {

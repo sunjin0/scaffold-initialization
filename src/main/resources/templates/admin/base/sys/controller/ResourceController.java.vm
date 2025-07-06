@@ -23,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 public class ResourceController {
     private final ResourceService resourceService;
 
-    public SysResourceController(ResourceService resourceService) {
+    public ResourceController(ResourceService resourceService) {
         this.resourceService = resourceService;
     }
 
@@ -63,7 +63,7 @@ public class ResourceController {
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @PostMapping("/list")
-    public WebResponse<List<ResourceVo>> list(@RequestBody Resource Resource) throws ServerException {
+    public WebResponse<List<ResourceVo>> list(@RequestBody ResourceVo Resource) throws ServerException {
         Page<ResourceVo> list = resourceService.list(Resource);
         return WebResponse.Page(list.getRecords(), list.getTotal());
     }
@@ -76,12 +76,12 @@ public class ResourceController {
     @PostMapping("/save")
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"name", "nameCn", "type"})
-                                     Resource Resource) throws ServerException {
-        if (StringUtils.isBlank(Resource.getId())) {
-            boolean save = resourceService.save(Resource);
+                                     Resource resource) throws ServerException {
+        if (StringUtils.isBlank(resource.getId())) {
+            boolean save = resourceService.save(resource);
             return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"), save);
         } else {
-            boolean update = resourceService.updateById(Resource);
+            boolean update = resourceService.updateById(resource);
             return WebResponse.OK(I18nUtils.getMessage(update ? "update.success" : "update.fail"), update);
         }
     }

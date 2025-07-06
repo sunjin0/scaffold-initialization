@@ -3,7 +3,8 @@ package ${packageName}.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import ${packageName}.entity.Sms;
-import ${packageName}.exception.ServerException;
+import ${packageName}.vo.SmsVo;
+import ${packageName2}.exception.ServerException;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -61,7 +62,7 @@ public interface SmsMessageService extends IService<Sms> {
                     @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
             }
     )
-    Page<Sms> list(Sms message) throws ServerException;
+    Page<Sms> list(SmsVo message) throws ServerException;
 
     /**
      * 删除

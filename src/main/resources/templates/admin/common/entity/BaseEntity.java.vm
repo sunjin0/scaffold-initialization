@@ -9,7 +9,8 @@ import java.io.Serializable;
 
 @Data
 public class BaseEntity implements Serializable {
-
+    @ApiModelProperty(value = "主键")
+    private String id;
     @ApiModelProperty(value = "创建时间")
     @TableField(value = "create_at", fill = FieldFill.INSERT)
     private Long createAt;

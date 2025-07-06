@@ -11,13 +11,12 @@ import ${packageName}.service.ResourceService;
 import ${packageName}.service.RoleService;
 import ${packageName2}.entity.Option;
 import ${packageName2}.entity.WebResponse;
-import ${packageName}.entity.Resource;
 import ${packageName}.entity.Role;
 import ${packageName2}.enums.State;
 import ${packageName2}.exception.ServerException;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName2}.validator.ValidEntity;
-import ${packageName}.vo.ResourceVo;
+import ${packageName}.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -27,7 +26,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +56,7 @@ public class RoleController {
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @PostMapping("/list")
-    public WebResponse<List<Role>> list(@RequestBody Role role) throws ServerException {
+    public WebResponse<List<Role>> list(@RequestBody RoleVo role) throws ServerException {
         Page<Role> dictPage = new Page<>(role.getCurrent(), role.getPageSize());
         Wrapper<Role> queryWrapper = Wrappers.lambdaQuery(Role.class)
                 .eq(Role::getState, State.Success.getCode())
@@ -133,9 +132,9 @@ public class RoleController {
     })
     @GetMapping("/resource")
     public WebResponse<List<ResourceVo>> resource() throws ServerException {
-        Resource Resource = new Resource();
-        Resource.setPageSize(100000);
-        Page<ResourceVo> list = resourceService.list(Resource);
+        ResourceVo resourceVo = new ResourceVo();
+        resourceVo.setPageSize(100000L);
+        Page<ResourceVo> list = resourceService.list(resourceVo);
         return WebResponse.OK(list.getRecords());
     }
 

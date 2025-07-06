@@ -1,0 +1,14 @@
+package ${packageName}.vo;
+
+import  ${packageName}.entity.${className};
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class ${className}Vo extends ${className} {
+    private Long current;
+    private Long pageSize;
+}

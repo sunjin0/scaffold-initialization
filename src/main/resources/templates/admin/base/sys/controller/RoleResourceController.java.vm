@@ -17,7 +17,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,18 +55,18 @@ public class RoleResourceController {
     @PostMapping("/save")
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"resourceIds", "roleId"})
-                                     RoleResourceVo roleResource) {
-        List<SysRoleResource> roleResourceList = roleResource.getResourceIds().stream().map(resourceId -> {
+                                     RoleResourceVo roleResourceVo) {
+        List<RoleResource> roleResourceList = roleResourceVo.getResourceIds().stream().map(resourceId -> {
             // 删除角色资源
-            if (roleResource.getRoleId() != null) {
-                roleResourceService.remove(Wrappers.lambdaQuery(SysRoleResource.class)
-                        .eq(SysRoleResource::getRoleId, roleResource.getRoleId()));
+            if (roleResourceVo.getRoleId() != null) {
+                roleResourceService.remove(Wrappers.lambdaQuery(RoleResource.class)
+                        .eq(RoleResource::getRoleId, roleResourceVo.getRoleId()));
             }
             // 添加角色资源
-            SysRoleResource sysRoleResource = new SysRoleResource();
-            sysRoleResource.setRoleId(roleResource.getRoleId());
-            sysRoleResource.setResourceId(Integer.valueOf(resourceId));
-            return sysRoleResource;
+            RoleResourceVo roleResource = new RoleResourceVo();
+            roleResource.setRoleId(roleResource.getRoleId());
+            roleResource.setResourceId(Integer.valueOf(resourceId));
+            return roleResource;
         }).collect(Collectors.toList());
         boolean result = roleResourceService.saveBatch(roleResourceList);
         return WebResponse.OK(result ? I18nUtils.getMessage("system.authorize.success") : I18nUtils.getMessage("system.authorize.fail"));

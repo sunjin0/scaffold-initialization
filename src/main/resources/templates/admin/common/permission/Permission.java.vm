@@ -1,4 +1,4 @@
-package ${packageName}..permission;
+package ${packageName}.permission;
 
 import java.lang.annotation.*;
 

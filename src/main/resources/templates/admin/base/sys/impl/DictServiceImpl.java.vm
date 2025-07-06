@@ -6,6 +6,7 @@ import ${packageName}.entity.Dict;
 import ${packageName2}.enums.State;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName}.vo.DictVo;
+import ${packageName}.service.DictService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;

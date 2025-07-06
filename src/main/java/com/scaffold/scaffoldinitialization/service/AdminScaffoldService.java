@@ -60,7 +60,7 @@ public class AdminScaffoldService {
             CodeGenerator(table, ve);
         }
         // 5.权限邮件基础代码
-        generateSysFiles(ve);
+        generateBaseFiles(ve);
         // 6.创建启动 文件
         TableInfo tableOne = tables.get(0);
         TableInfo table = new TableInfo();
@@ -72,17 +72,36 @@ public class AdminScaffoldService {
         System.out.println("✅ 后台项目代码生成完成！");
     }
 
+    /**
+     * 生成 SYS 文件
+     *
+     * @param ve ve
+     */
     private static void generateSysFiles(VelocityEngine ve) {
         String[][] sysTemplateMapping = getSysTemplateMapping();
         VelocityContext context = new VelocityContext();
         context.put("packageName", PACKAGE_NAME + ".sys");
         context.put("packageName2", PACKAGE_NAME);
         String packageName = PACKAGE_NAME.replace('.', '/');
+        String targetSubDir = "src/main/java/" + packageName + "/sys/";
 
+        generateBaseFiles(ve, sysTemplateMapping, targetSubDir, context, packageName);
+
+    }
+
+    /**
+     * 生成基本文件
+     *
+     * @param ve                 ve
+     * @param sysTemplateMapping SYS 模板映射
+     * @param targetSubDir       目标子目录
+     * @param context            上下文
+     * @param packageName        包名称
+     */
+    private static void generateBaseFiles(VelocityEngine ve, String[][] sysTemplateMapping, String targetSubDir, VelocityContext context, String packageName) {
         for (String[] mapping : sysTemplateMapping) {
             String templatePath = mapping[0];
             String targetFileName = mapping[1];
-            String targetSubDir = "src/main/java/" + packageName + "/sys/";
             if (templatePath.contains("entity")
                     || templatePath.contains("vo")
                     || templatePath.contains("service")
@@ -116,9 +135,66 @@ public class AdminScaffoldService {
                         context);
             }
         }
-
     }
 
+    /**
+     * 生成消息文件
+     *
+     * @param ve ve
+     */
+    private static void generateMessageFile(VelocityEngine ve) {
+        String[][] msgTemplateMapping = getMessageTemplateMapping();
+        VelocityContext context = new VelocityContext();
+        context.put("packageName", PACKAGE_NAME + ".msg");
+        context.put("packageName2", PACKAGE_NAME);
+        String packageName = PACKAGE_NAME.replace('.', '/');
+        String targetSubDir = "src/main/java/" + packageName + "/msg/";
+        generateBaseFiles(ve, msgTemplateMapping, targetSubDir, context, packageName);
+    }
+
+    /**
+     * 生成基本文件
+     *
+     * @param ve ve
+     */
+    private static void generateBaseFiles(VelocityEngine ve) {
+        generateSysFiles(ve);
+        generateMessageFile(ve);
+    }
+
+    /**
+     * 获取消息模板映射
+     *
+     * @return {@link String[][] }
+     */
+    private static String[][] getMessageTemplateMapping() {
+        return new String[][]{
+                //entity
+                {"admin/base/msg/entity/Email.java.vm", "entity/Email.java"},
+                {"admin/base/msg/entity/Sms.java.vm", "entity/Sms.java"},
+                // vo
+                {"admin/base/msg/vo/EmailVo.java.vm", "vo/EmailVo.java"},
+                {"admin/base/msg/vo/SmsVo.java.vm", "vo/SmsVo.java"},
+                //mapper
+                {"admin/base/msg/mapper/EmailMessageMapper.java.vm", "mapper/EmailMessageMapper.java"},
+                {"admin/base/msg/mapper/SmsMessageMapper.java.vm", "mapper/SmsMessageMapper.java"},
+                //service
+                {"admin/base/msg/service/EmailMessageService.java.vm", "service/EmailMessageService.java"},
+                {"admin/base/msg/service/SmsMessageService.java.vm", "service/SmsMessageService.java"},
+                //impl
+                {"admin/base/msg/impl/EmailMessageServiceImpl.java.vm", "service/impl/EmailMessageServiceImpl.java"},
+                {"admin/base/msg/impl/SmsMessageServiceImpl.java.vm", "service/impl/SmsMessageServiceImpl.java"},
+                //controller
+                {"admin/base/msg/controller/EmailController.java.vm", "controller/EmailController.java"},
+                {"admin/base/msg/controller/SmsController.java.vm", "controller/SmsController.java"},
+        };
+    }
+
+    /**
+     * 获取 SYS 模板映射
+     *
+     * @return {@link String[][] }
+     */
     private static String[][] getSysTemplateMapping() {
         return new String[][]{
                 //entity
@@ -182,6 +258,11 @@ public class AdminScaffoldService {
         if (table.getPrefix() != null)
             entityPath = String.format("%s/%s/entity/%s.java", packPath, table.getPrefix(), table.getClassName());
         generateFile(ve, "Entity.vm", table, MODULE_API, entityPath);
+        // vo
+        String voPath = String.format("%s/vo/%sVo.java", packPath, table.getClassName());
+        if (table.getPrefix() != null)
+            voPath = String.format("%s/%s/vo/%sVo.java", packPath, table.getPrefix(), table.getClassName());
+        generateFile(ve, "Vo.java.vm", table, MODULE_API, voPath);
 
         // Mapper 放入 api 模块
         String mapperPath = String.format("%s/mapper/%sMapper.java", packPath, table.getClassName());

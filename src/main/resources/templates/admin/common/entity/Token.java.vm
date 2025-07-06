@@ -20,11 +20,6 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "SysToken对象", description = "令牌表")
 public class Token extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty(value = "令牌id")
-    private String id;
-
     @ApiModelProperty(value = "用户id")
     private Integer userId;
 

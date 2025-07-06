@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>3.1.2</version>
+                <version>2.7.18</version> <!-- 最后一个支持Java8的版本 -->
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -64,12 +64,6 @@
                 <groupId>org.springframework.plugin</groupId>
                 <artifactId>spring-plugin-core</artifactId>
                 <version>2.0.0.RELEASE</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.30</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -128,7 +122,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+        </dependency>
         <!-- Swagger 注解 -->
         <dependency>
             <groupId>io.swagger</groupId>
@@ -136,7 +134,11 @@
             <version>1.6.11</version>
         </dependency>
     </dependencies>
-
+    <properties>
+        <java.version>8</java.version> <!-- 只写主版本号 -->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+    </properties>
     <!-- 构建配置 -->
     <build>
         <plugins>
@@ -145,9 +147,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>
-                    17</source>
-                    <target>17</target>
+                    <source>8</source>
+                    <target>8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

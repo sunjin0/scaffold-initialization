@@ -3,7 +3,8 @@ package ${packageName}.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import ${packageName}.entity.Email;
-import ${packageName}.exception.ServerException;
+import ${packageName}.vo.EmailVo;
+import ${packageName2}.exception.ServerException;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.scheduling.annotation.Async;
@@ -49,7 +50,7 @@ public interface EmailMessageService extends IService<Email> {
      */
     @ApiOperation("获取消息列表")
     @ApiImplicitParam(name = "message", value = "消息对象", required = true)
-    Page<Email> list(Email message) throws ServerException;
+    Page<Email> list(EmailVo message) throws ServerException;
 
     /**
      * 发送

@@ -1,6 +1,8 @@
 package ${packageName}.entity;
 
+import ${packageName2}.entity.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,13 +17,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 */
 #end
 @Data
+@EqualsAndHashCode(callSuper = false)
 #if(${classComment} != "")
 @ApiModel("${classComment}")
 #else
 @ApiModel("${className}")
 #end
 @TableName("${tableName}")
-public class ${className} {
+public class ${className} extends BaseEntity {
 
 #foreach($field in $fields)
     #if($field.comment)

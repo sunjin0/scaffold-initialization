@@ -26,10 +26,6 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "SysDict对象", description = "系统字典表")
 public class Dict extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private String id;
 
     @ApiModelProperty(value = "代码")
     private String code;

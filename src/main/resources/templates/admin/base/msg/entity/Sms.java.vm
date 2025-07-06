@@ -3,7 +3,7 @@ package ${packageName}.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import ${packageName}.entity.BaseEntity;
+import ${packageName2}.entity.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -25,10 +25,6 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "MsgSms对象", description = "短信消息发送记录")
 public class Sms extends BaseEntity {
 
-    private static final long serialVersionUID = 1L;
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private String id;
     @ApiModelProperty(value = "用户id")
     private String userId;
     @ApiModelProperty(value = "电话")
