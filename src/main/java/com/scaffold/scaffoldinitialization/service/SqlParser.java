@@ -1,13 +1,12 @@
 package com.scaffold.scaffoldinitialization.service;
 
 import com.scaffold.scaffoldinitialization.entity.TableInfo;
-import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.Statements;
-import net.sf.jsqlparser.statement.create.table.CreateTable;
-import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.List;
 
 public class SqlParser {
     private static final String[] NOT_APPEND_FIELDS = {
-            "id", "createAt", "updateAt", "state", "deleted", "sortNum"
+            "id", "createdAt", "updatedAt", "state", "deleted", "sortedNum"
     };
 
     /**
@@ -75,11 +74,13 @@ public class SqlParser {
                 // 表名转类名
                 tableInfo.setClassName(convertToCamelCase(tableName));
                 //设置服务名
-                tableInfo.setServiceName(toLowerCamelCase(tableName));
+                tableInfo.setServiceName(toLowerCamelCase(tableName, true));
                 //获取表注释
                 List<String> comment = createTable.getTableOptionsStrings();
                 tableInfo.setClassComment(getTableComment(comment));
-                tableInfo.setFields(mapColumnsToFieldInfos(createTable.getColumnDefinitions()));
+                //列转字段信息
+                List<ColumnDefinition> columnDefinitions = createTable.getColumnDefinitions();
+                tableInfo.setFields(mapColumnsToFieldInfos(columnDefinitions));
                 tableInfos.add(tableInfo);
             }
         }
@@ -117,7 +118,7 @@ public class SqlParser {
     private static List<TableInfo.FieldInfo> mapColumnsToFieldInfos(List<ColumnDefinition> columnDefinitions) {
         List<TableInfo.FieldInfo> fieldInfos = new ArrayList<>(columnDefinitions.size());
         for (ColumnDefinition columnDefinition : columnDefinitions) {
-            String lowerCamelCase = toLowerCamelCase(columnDefinition.getColumnName());
+            String lowerCamelCase = toLowerCamelCase(columnDefinition.getColumnName(), false);
             String type = convertToJavaType(columnDefinition.getColDataType().getDataType());
 
             List<String> columnSpecs = columnDefinition.getColumnSpecs();
@@ -228,10 +229,11 @@ public class SqlParser {
      * 将下划线分隔的名称转换为 lowerCamelCase 格式
      * 例如: sys_user_role -> userRole
      *
-     * @param input 输入的下划线格式字符串
+     * @param input  输入的下划线格式字符串
+     * @param prefix 是否去前缀
      * @return lowerCamelCase 格式的字符串
      */
-    public static String toLowerCamelCase(String input) {
+    public static String toLowerCamelCase(String input, Boolean prefix) {
         if (input == null || input.isEmpty()) {
             return input;
         }
@@ -246,8 +248,8 @@ public class SqlParser {
             if (part.isEmpty()) {
                 continue;
             }
-            //如果part数量大于等3个，第一个不要
-            if (parts.length >= 2 && i == 0) {
+            //如果part数量大于等2个，第一个不要
+            if (parts.length >= 2 && i == 0 && prefix) {
                 continue;
             }
             if (first) {

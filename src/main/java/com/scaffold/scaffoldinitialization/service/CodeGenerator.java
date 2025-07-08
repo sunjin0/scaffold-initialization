@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class CodeGenerator {
 
     // SQL文件路径
-    public static final String SQL_PATH = "huayou_3.9.sql";
+    public static final String SQL_PATH = "demo.sql";
     public static final String OUTPUT_DIR = "D:\\project\\";
 
     public static void main(String[] args) throws Exception {

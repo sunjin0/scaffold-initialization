@@ -12,11 +12,11 @@ public class BaseEntity implements Serializable {
     @ApiModelProperty(value = "主键")
     private String id;
     @ApiModelProperty(value = "创建时间")
-    @TableField(value = "create_at", fill = FieldFill.INSERT)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private Long createAt;
 
     @ApiModelProperty(value = "更新时间")
-    @TableField(value = "update_at", fill = FieldFill.INSERT_UPDATE)
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private Long updateAt;
 
 
@@ -24,12 +24,15 @@ public class BaseEntity implements Serializable {
     @TableField(value = "sort_num", fill = FieldFill.INSERT)
     private Integer sortNum;
 
+    @ApiModelProperty(value = "删除状态")
+    @TableField(value = "deleted", fill = FieldFill.INSERT)
+    private Integer deleted;
     /**
      * 消息状态,0删除，1成功，2.失败，3撤回
      * 验证码昨天 0 删除 1 可用，2过期
      * 默认为1
      */
-    @ApiModelProperty(value = "状态，0 删除  默认1")
+    @ApiModelProperty(value = "状态 默认1")
     @TableField(fill = FieldFill.INSERT)
     private Integer state;
 }
