@@ -87,16 +87,25 @@ public class RoleController {
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @Permission(path = "/sys/role", type = Permission.Type.Write)
-    @PostMapping("/save")
+    @PostMapping("/add")
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"name"})
                                      Role role) throws ServerException {
-        String id = role.getId();
-        boolean save = roleService.saveOrUpdate(role);
-        if (StringUtils.isBlank(id)) {
-            return WebResponse.OK(save ? I18nUtils.getMessage("add.success") : I18nUtils.getMessage("add.fail"), true);
-        }
-        return WebResponse.OK(save ? I18nUtils.getMessage("update.success") : I18nUtils.getMessage("update.fail"), true);
+        boolean save = roleService.save(role);
+        return WebResponse.OK(save ? I18nUtils.getMessage("add.success") : I18nUtils.getMessage("add.fail"), true);
+    }
+
+    @ApiOperation(value = "修改角色")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
+    })
+    @Permission(path = "/sys/role", type = Permission.Type.Write)
+    @PostMapping("/update")
+    public WebResponse<Boolean> update(@RequestBody
+                                       @ValidEntity(fieldNames = {"name"})
+                                       Role role) throws ServerException {
+        boolean update = roleService.updateById(role);
+        return WebResponse.OK(update ? I18nUtils.getMessage("update.success") : I18nUtils.getMessage("update.fail"), true);
     }
 
     @ApiOperation(value = "角色详情")

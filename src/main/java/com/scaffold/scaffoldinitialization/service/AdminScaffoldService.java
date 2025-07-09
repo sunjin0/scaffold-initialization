@@ -240,6 +240,7 @@ public class AdminScaffoldService {
                 {"admin/base/sys/controller/RoleController.java.vm", "controller/RoleController.java"},
                 {"admin/base/sys/controller/RoleResourceController.java.vm", "controller/RoleResourceController.java"},
                 {"admin/base/sys/controller/UserController.java.vm", "controller/UserController.java"},
+                {"admin/base/sys/controller/LoginController.java.vm", "controller/LoginController.java"},
 
         };
     }
@@ -303,9 +304,6 @@ public class AdminScaffoldService {
         createModuleStructure(MODULE_COMMON);
         createModuleStructure(MODULE_ADMIN);
         createModuleStructure(MODULE_FRONT);
-
-        // resources 目录统一放在根模块下
-        new File(OUTPUT_DIR + PROJECT_ROOT + "/src/main/resources").mkdirs();
     }
 
     /**
@@ -341,10 +339,15 @@ public class AdminScaffoldService {
         // 生成Api模块配置文件 api/application.yml,api/application-dev.yml,api/application-prod.yml
         VelocityContext ctx = new VelocityContext();
         String[][] templateMapping = new String[][]{
+                //配置
                 {"admin/api/application.yml.vm", "application.yml"},
                 {"admin/api/application-dev.yml.vm", "application-dev.yml"},
                 {"admin/api/application-prod.yml.vm", "application-prod.yml"},
                 {"admin/api/application-test.yml.vm", "application-test.yml"},
+                //i18n
+                {"admin/api/i18n/api.properties.vm", "i18n/api.properties"},
+                {"admin/api/i18n/api_zh_CN.properties.vm", "i18n/api_zh_CN.properties"},
+                {"admin/api/i18n/api_en_US.properties.vm", "i18n/api_en_US.properties"},
         };
         generateMultipleConfigFiles(ve, MODULE_API, "src/main/resources", templateMapping, ctx);
         generateModulePom(ve, MODULE_BIZ);

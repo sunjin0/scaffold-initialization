@@ -1,9 +1,13 @@
 package ${packageName}.controller;
-
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import ${packageName}.vo.${className}Vo;
 import ${packageName}.entity.${className};
 import ${packageName2}.entity.WebResponse;
 import ${packageName}.service.${className}Service;
 import ${packageName2}.permission.Permission;
+import ${packageName2}.i18n.I18nUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.annotations.*;
@@ -16,17 +20,22 @@ import java.util.List;
 @RequestMapping("/api/${prefix}${serviceName}")
 public class ${className}Controller {
 
-    @Autowired
-    private ${className}Service ${serviceName}Service;
+    private  final ${className}Service ${serviceName}Service;
 
+    public ${className}Controller(${className}Service ${serviceName}Service) {
+        this.${serviceName}Service = ${serviceName}Service;
+    }
     /**
      * 查询所有
      */
     @ApiOperation("查询所有")
     @Permission(path = "/${prefix}${serviceName}")
     @PostMapping("/list")
-    public WebResponse<List<${className}>> list() {
-        return WebResponse.OK(${serviceName}Service.list());
+    public WebResponse<List<${className}>> list(@RequestBody ${className}Vo entity) {
+         Page<${className}> page = new Page<>(entity.getCurrent(), entity.getPageSize());
+         LambdaQueryWrapper<${className}> wrapper = Wrappers.lambdaQuery(${className}.class);
+         Page<${className}> ${className}Page = ${serviceName}Service.page(page, wrapper);
+         return WebResponse.Page(${className}Page.getRecords(), ${className}Page.getTotal());
     }
 
     /**
@@ -36,7 +45,8 @@ public class ${className}Controller {
     @Permission(path = "/${prefix}${serviceName}", type = Permission.Type.Write)
     @PostMapping("/add")
     public WebResponse<Boolean> add(@RequestBody ${className} entity) {
-        return WebResponse.OK(${serviceName}Service.save(entity));
+         Boolean save = ${serviceName}Service.save(entity);
+          return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"),save);
     }
     /**
     * 修改
@@ -45,7 +55,8 @@ public class ${className}Controller {
     @Permission(path = "/${prefix}${serviceName}", type = Permission.Type.Write)
     @PutMapping("/update")
     public WebResponse<Boolean> update(@RequestBody ${className} entity) {
-        return WebResponse.OK(${serviceName}Service.updateById(entity));
+        Boolean update = ${serviceName}Service.updateById(entity);
+        return WebResponse.OK(I18nUtils.getMessage(update ? "update.success" : "update.fail"),update);
         }
     /**
      * 删除

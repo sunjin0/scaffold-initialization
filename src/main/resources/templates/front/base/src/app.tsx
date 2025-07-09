@@ -28,7 +28,7 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      let {data} = await request2('/api/chat/system/info');
+      let {data} = await request2('/api/sys/info');
       return data
     } catch (error) {
       history.push(loginPath);
@@ -72,7 +72,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
         id: initialState?.currentUser?.id
       },
       request: async () => {
-        const {data} = await request2('/api/chat/system/getRouters');
+        const {data} = await request2('/api/sys/getRouters');
         data.forEach((item: any) => {
           item.icon = iconMap[item.icon]
         })

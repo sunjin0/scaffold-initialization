@@ -91,17 +91,16 @@ public class UserController {
         return WebResponse.OK(userVo);
     }
 
-    @ApiOperation("管理员保存修改")
+    @ApiOperation("管理员保存")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @Permission(path = "/sys/admin", type = Permission.Type.Write)
     @Transactional(rollbackFor = Exception.class)
-    @PostMapping("/save")
+    @PostMapping("/add")
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"username", "phone", "email", "avatar"})
                                      UserVo User) throws ServerException {
-        String id = User.getId();
         // 密码加密
         if (StringUtils.isNotEmpty(User.getPassword())) {
             User.setPassword(encoder.encode(User.getPassword()));
@@ -109,11 +108,28 @@ public class UserController {
         if (User.getRoleIds() != null) {
             userService.bindRole(User.getId(), User.getRoleIds());
         }
-        boolean saved = userService.saveOrUpdate(User);
-        if (StringUtils.isEmpty(id)) {
+        boolean saved = userService.save(User);
             return WebResponse.OK(saved ? I18nUtils.getMessage("add.success") : I18nUtils.getMessage("add.fail"), true);
+    }
+    @ApiOperation("管理员修改")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
+    })
+    @Permission(path = "/sys/admin", type = Permission.Type.Write)
+    @Transactional(rollbackFor = Exception.class)
+    @PostMapping("/update")
+    public WebResponse<Boolean> update(@RequestBody
+                                       @ValidEntity(fieldNames = {"username", "phone", "email", "avatar"})
+                                       UserVo User)throws ServerException {
+        // 密码加密
+        if (StringUtils.isNotEmpty(User.getPassword())) {
+            User.setPassword(encoder.encode(User.getPassword()));
         }
-        return WebResponse.OK(saved ? I18nUtils.getMessage("update.success") : I18nUtils.getMessage("update.fail"), true);
+        if (User.getRoleIds() != null) {
+            userService.bindRole(User.getId(), User.getRoleIds());
+        }
+        boolean update = userService.updateById(User);
+        return WebResponse.OK(update ? I18nUtils.getMessage("update.success") : I18nUtils.getMessage("update.fail"), true);
     }
 
     @ApiOperation("管理员删除")

@@ -36,9 +36,6 @@ public class User extends BaseEntity {
     @ApiModelProperty(value = "身份类型")
     private String type;
 
-    @ApiModelProperty(value = "年龄")
-    private Integer age;
-
     @ApiModelProperty(value = "邮箱")
     private String email;
 

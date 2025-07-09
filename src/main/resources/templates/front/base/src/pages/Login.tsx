@@ -38,7 +38,7 @@ export default () => {
           onFinish={async (values) => {
             if (verity) {
               // 登录
-              let {data, message: msg} = await request('/api/chat/system/login', {
+              let {data, message: msg} = await request('/api/sys/login', {
                 data: values,
                 method: 'POST',
               });
@@ -56,7 +56,7 @@ export default () => {
               return true
             } else {
               // 验证账号密码
-              let {data, message: msg} = await request('/api/chat/system/verify', {
+              let {data, message: msg} = await request('/api/sys/verify', {
                 data: values,
                 method: 'POST',
               });
@@ -178,7 +178,7 @@ export default () => {
                   },
                 ]}
                 onGetCaptcha={async (email) => {
-                  const result = await request('/api/chat/system/send', {
+                  const result = await request('/api/sys/send', {
                     data: {
                       email: email
                     },

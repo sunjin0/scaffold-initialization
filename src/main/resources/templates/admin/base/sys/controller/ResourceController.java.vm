@@ -68,22 +68,29 @@ public class ResourceController {
         return WebResponse.Page(list.getRecords(), list.getTotal());
     }
 
-    @ApiOperation(value = "保存和修改资源")
+    @ApiOperation(value = "保存资源")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @Permission(path = "/sys/resource", type = Permission.Type.Write)
-    @PostMapping("/save")
+    @PostMapping("/add")
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"name", "nameCn", "type"})
                                      Resource resource) throws ServerException {
-        if (StringUtils.isBlank(resource.getId())) {
             boolean save = resourceService.save(resource);
             return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"), save);
-        } else {
-            boolean update = resourceService.updateById(resource);
-            return WebResponse.OK(I18nUtils.getMessage(update ? "update.success" : "update.fail"), update);
-        }
+    }
+    @ApiOperation(value = "更新资源")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
+    })
+    @Permission(path = "/sys/resource", type = Permission.Type.Write)
+    @PostMapping("/update")
+    public WebResponse<Boolean> update(@RequestBody
+                                      @ValidEntity(fieldNames = {"name", "nameCn", "type"})
+                                           Resource resource){
+        boolean update = resourceService.updateById(resource);
+        return WebResponse.OK(I18nUtils.getMessage(update ? "update.success" : "update.fail"), update);
     }
 
     @ApiOperation(value = "删除资源")
