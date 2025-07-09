@@ -5,10 +5,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
@@ -66,10 +63,36 @@ public class AdminScaffoldService {
         TableInfo table = new TableInfo();
         table.setPackageName(tableOne.getPackageName());
         table.setClassName(tableOne.getClassName());
-        table.setServiceName(PROJECT_ROOT);
-        generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), table.getServiceName()));
+        // 创建后端启动文件
+        String admin = SqlParser.capitalizeFirstLetter(MODULE_ADMIN);
+        table.setServiceName(admin);
+        generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), admin));
+        // 生成前端启动文件
+        String front = SqlParser.capitalizeFirstLetter(MODULE_FRONT);
+        table.setServiceName(front);
+        generateFile(ve, "Application.vm", table, MODULE_FRONT, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), front));
 
+        //7.test  文件
+        Template template = ve.getTemplate(TEMPLATE_DIR + "/admin/ApplicationTests.vm");
+        table.setServiceName(admin);
+        generateTestFile(table, template, MODULE_ADMIN);
+        table.setServiceName(front);
+        generateTestFile(table, template, MODULE_FRONT);
         System.out.println("✅ 后台项目代码生成完成！");
+    }
+
+    private static void generateTestFile(TableInfo tableOne, Template template, String moduleName) throws IOException {
+        VelocityContext ctx = new VelocityContext();
+        ctx.put("packageName", tableOne.getPackageName());
+        ctx.put("className", tableOne.getClassName());
+        ctx.put("serviceName", tableOne.getServiceName());
+        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/src/main/test/java/" + PACKAGE_NAME.replace(".", "/") + "/" + SqlParser.capitalizeFirstLetter(moduleName) + "ApplicationTests.java";
+        File outFile = new File(outputFilePath);
+        outFile.getParentFile().mkdirs();
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+            template.merge(ctx, writer);
+        }
     }
 
     /**

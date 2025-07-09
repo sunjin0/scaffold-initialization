@@ -12,8 +12,10 @@ system.authorize.fail=Authorize Fail
 auth.error.no.permission=You do not have permission to do this
 # 邮箱不存在
 user.email.not.exist=The email does not exist
+user.email.exist=The email already exists
 # 手机不存在
 user.phone.not.exist=The phone does not exist
+user.phone.exist=The phone already exists
 # 验证码错误
 user.captcha.error=Captcha error
 # 验证码过期

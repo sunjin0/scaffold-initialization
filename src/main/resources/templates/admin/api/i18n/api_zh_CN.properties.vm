@@ -12,8 +12,11 @@ system.authorize.fail=授权失败
 auth.error.no.permission=您没有权限执行此操作
 # 邮箱不存在
 user.email.not.exist=邮箱不存在
+user.email.exist=邮箱已存在
 # 手机号码不存在
 user.phone.not.exist=手机号码不存在
+# 手机号码已存在
+user.phone.exist=手机号码已存在
 # 验证码错误
 user.captcha.error=验证码错误
 # 验证码已过期

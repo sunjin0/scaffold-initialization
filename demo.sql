@@ -105,7 +105,7 @@ CREATE TABLE `sys_dict`
 CREATE TABLE `msg_email`
 (
     `id`         bigint PRIMARY KEY NOT NULL COMMENT '主键',
-    `userId`     bigint             NOT NULL COMMENT '接收用户ID',
+    `user_id`     bigint             NOT NULL COMMENT '接收用户ID',
     `email`      varchar(255)       NOT NULL COMMENT '接收邮箱',
     `type`       varchar(255)       NOT NULL COMMENT '消息类型',
     `code`       varchar(255) COMMENT '消息编码',
@@ -121,7 +121,7 @@ CREATE TABLE `msg_email`
 CREATE TABLE `msg_sms`
 (
     `id`         bigint PRIMARY KEY NOT NULL COMMENT '主键',
-    `userId`     bigint             NOT NULL COMMENT '用户ID',
+    `user_id`     bigint             NOT NULL COMMENT '用户ID',
     `phone`      varchar(255)       NOT NULL COMMENT '手机号码',
     `code`       varchar(255)       NOT NULL COMMENT '验证码',
     `type`       varchar(255)       NOT NULL COMMENT '验证码类型',

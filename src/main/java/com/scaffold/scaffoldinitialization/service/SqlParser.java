@@ -20,7 +20,7 @@ import java.util.List;
 
 public class SqlParser {
     private static final String[] NOT_APPEND_FIELDS = {
-            "id", "createdAt", "updatedAt", "state", "deleted", "sortedNum"
+            "id", "createdAt", "updatedAt", "state", "deleted", "sortNum"
     };
 
     /**
@@ -261,6 +261,31 @@ public class SqlParser {
             }
         }
         return getString(result.toString());
+    }
+
+    /**
+     * 将字符串中每个单词的首字母改为大写，支持处理整个语句
+     *
+     * @param string 输入字符串
+     * @return 首字母大写的字符串
+     */
+    public static String capitalizeFirstLetter(String string) {
+        if (string == null || string.isEmpty()) {
+            return string;
+        }
+
+        StringBuilder result = new StringBuilder();
+        String[] words = string.split("\\s+");
+
+        for (String word : words) {
+            if (!word.isEmpty()) {
+                result.append(Character.toUpperCase(word.charAt(0)));
+                result.append(word.substring(1).toLowerCase());
+                result.append(" ");
+            }
+        }
+
+        return result.toString().trim();
     }
 
 

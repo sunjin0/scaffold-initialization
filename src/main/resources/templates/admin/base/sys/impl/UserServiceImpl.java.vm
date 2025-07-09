@@ -63,8 +63,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String phone = user.getPhone();
         Integer verificationCode = user.getVerificationCode();
         // 检查邮箱和手机号是否已存在
-        checkEmail(email);
-        checkPhone(phone);
+        if(checkEmail(email))
+            throw new ServerException(400, I18nUtils.getMessage("user.email.exist"));
+        if(checkPhone(phone))
+            throw new ServerException(400, I18nUtils.getMessage("user.phone.exist"));
         // 验证码校验
         checkCode(email, verificationCode);
         user.setPassword(encoder.encode(user.getPassword()));
@@ -127,11 +129,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (matches) {
             query.eq(User::getEmail, account);
             // 检查邮箱
-            checkEmail(account);
+            if(!checkEmail(account))
+                throw new ServerException(400, I18nUtils.getMessage("user.email.not.exist"));
         } else {
             query.eq(User::getPhone, account);
             // 检查手机号
-            checkPhone(account);
+            if(!checkPhone(account))
+                throw new ServerException(400, I18nUtils.getMessage("user.phone.not.exist"));
         }
         User dbUser = getOne(query);
         if (dbUser != null && !encoder.matches(password, dbUser.getPassword())) {
@@ -139,23 +143,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         return true;
     }
-
-    private void checkPhone(String account) throws ServerException {
+    /**
+     * 检查手机号是否存在
+     *
+     * @param account 手机号
+     * @return  true：存在，false：不存在
+     */
+    private Boolean checkPhone(String account) throws ServerException {
         User phone = this.getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getPhone, account)
                 .eq(User::getState, State.Success.getCode()));
-        if (phone == null) {
-            throw new ServerException(400, I18nUtils.getMessage("user.phone.not.exist"));
-        }
+        return phone != null;
     }
-
-    private void checkEmail(String account) throws ServerException {
+    /**
+     * 检查邮箱是否存在
+     *
+     * @param account 邮箱
+     * @return  true：存在，false：不存在
+     */
+    private Boolean checkEmail(String account) throws ServerException {
         User email = this.getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getEmail, account)
                 .eq(User::getState, State.Success.getCode()));
-        if (email == null) {
-            throw new ServerException(400, I18nUtils.getMessage("user.email.not.exist"));
-        }
+        return email != null;
     }
 
     @Transactional(rollbackFor = ServerException.class)
@@ -164,7 +174,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String email = user.getEmail();
         Integer verificationCode = user.getVerificationCode();
         // 邮箱是否存在
-        checkEmail(email);
+        if(!checkEmail(email))
+            throw new ServerException(400, I18nUtils.getMessage("user.email.not.exist"));
         checkCode(email, verificationCode);
         User one = getOne(Wrappers.lambdaQuery(User.class)
                 .eq(User::getEmail, email)
