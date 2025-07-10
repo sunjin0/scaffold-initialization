@@ -62,26 +62,52 @@ public class AdminScaffoldService {
         // 5.权限邮件基础代码
         generateBaseFiles(ve);
         // 6.创建启动 文件
+        String admin = SqlParser.capitalizeFirstLetter(MODULE_ADMIN);
+        String front = SqlParser.capitalizeFirstLetter(MODULE_FRONT);
         TableInfo tableOne = tables.get(0);
         TableInfo table = new TableInfo();
+        generateMainFile(table, tableOne, admin, ve, front);
+        //7.test  文件
+        generateTestsFile(ve, table, admin, front);
+        System.out.println("✅ 后台项目代码生成完成！");
+    }
+
+    /**
+     * 生成启动文件
+     *
+     * @param table    表信息
+     * @param tableOne 表信息
+     * @param admin    模块名称
+     * @param ve       ve
+     * @param front    模块名称
+     * @throws Exception 错误
+     */
+    private static void generateMainFile(TableInfo table, TableInfo tableOne, String admin, VelocityEngine ve, String front) throws Exception {
         table.setPackageName(tableOne.getPackageName());
         table.setClassName(tableOne.getClassName());
         // 创建后端启动文件
-        String admin = SqlParser.capitalizeFirstLetter(MODULE_ADMIN);
         table.setServiceName(admin);
         generateFile(ve, "Application.vm", table, MODULE_ADMIN, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), admin));
         // 生成前端启动文件
-        String front = SqlParser.capitalizeFirstLetter(MODULE_FRONT);
         table.setServiceName(front);
         generateFile(ve, "Application.vm", table, MODULE_FRONT, String.format("%s/%sApplication.java", PACKAGE_NAME.replace(".", "/"), front));
+    }
 
-        //7.test  文件
+    /**
+     * 测试文件
+     *
+     * @param ve    ve
+     * @param table 表信息
+     * @param admin 模块名称
+     * @param front 模块名称
+     * @throws IOException IO 错误
+     */
+    private static void generateTestsFile(VelocityEngine ve, TableInfo table, String admin, String front) throws IOException {
         Template template = ve.getTemplate(TEMPLATE_DIR + "/admin/ApplicationTests.vm");
         table.setServiceName(admin);
         generateTestFile(table, template, MODULE_ADMIN);
         table.setServiceName(front);
         generateTestFile(table, template, MODULE_FRONT);
-        System.out.println("✅ 后台项目代码生成完成！");
     }
 
     /**
@@ -302,15 +328,18 @@ public class AdminScaffoldService {
                 {"admin/api/i18n/api_en_US.properties.vm", "i18n/api_en_US.properties"},
         };
         generateMultipleConfigFiles(ve, MODULE_API, "src/main/resources", templateMapping, ctx);
+        String[][] applicationTemplates = {{"admin/api/application.yml.vm", "application.yml"}};
+        generateMultipleConfigFiles(ve, MODULE_ADMIN, "src/main/resources", applicationTemplates, ctx);
+        generateMultipleConfigFiles(ve, MODULE_FRONT, "src/main/resources", applicationTemplates, ctx);
+
         generateModulePom(ve, MODULE_BIZ);
         generateModulePom(ve, MODULE_COMMON);
         //将基础配置文件
-        templateMapping = getBaseTemplateMapping();
         ctx.put("packageName", PACKAGE_NAME);
         generateMultipleConfigFiles(ve,
                 MODULE_COMMON,
                 "src/main/java/" + PACKAGE_NAME.replace(".", "/"),
-                templateMapping,
+                getBaseTemplateMapping(),
                 ctx);
         generateModulePom(ve, MODULE_ADMIN);
         generateModulePom(ve, MODULE_FRONT);
@@ -384,7 +413,7 @@ public class AdminScaffoldService {
             throw new RuntimeException("写入文件失败: " + targetFile, e);
         }
 
-        System.out.println("📎 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
+        System.out.println("📄 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
     }
 
 
@@ -670,6 +699,7 @@ public class AdminScaffoldService {
                 {"admin/base/sys/controller/RoleResourceController.java.vm", "controller/RoleResourceController.java"},
                 {"admin/base/sys/controller/UserController.java.vm", "controller/UserController.java"},
                 {"admin/base/sys/controller/LoginController.java.vm", "controller/LoginController.java"},
+                {"admin/base/sys/controller/ConfigController.java.vm", "controller/ConfigController.java"},
         };
     }
 }
