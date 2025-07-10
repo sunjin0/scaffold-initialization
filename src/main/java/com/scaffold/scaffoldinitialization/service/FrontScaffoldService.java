@@ -29,6 +29,8 @@ public class FrontScaffoldService {
     private static final String TEMPLATE_DIR = "templates/front";
     // 项目根目录
     private static String PROJECT_ROOT = "hy-ui";
+    //覆盖原文件
+    private static boolean OVERWRITE = true;
     // 输出目录
     private static String OUTPUT_DIR = "D:\\project\\";
 
@@ -43,9 +45,11 @@ public class FrontScaffoldService {
      */
     public static void generateFrontScaffold(String projectName,
                                              ArrayList<TableInfo> tableInfos,
-                                             String outputDir) throws Exception {
+                                             String outputDir,
+                                             Boolean overwrite) throws Exception {
         PROJECT_ROOT = projectName;
         OUTPUT_DIR = outputDir;
+        OVERWRITE = overwrite;
         VelocityEngine ve = getVelocityEngine();
         //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
         FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
@@ -86,9 +90,13 @@ public class FrontScaffoldService {
         }
         File outFile = new File(outputFilePath);
         //创建父目录
+        if (outFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            return;
+        }
+
         File parentFile = outFile.getParentFile();
-        if (!parentFile.exists())
-            parentFile.mkdirs();
+        parentFile.mkdirs();
 
         ctx.put("className", table.getClassName());
         List<TableInfo.FieldInfo> fields = table.getFields();
@@ -146,7 +154,15 @@ public class FrontScaffoldService {
         }
         ctx.put("routes", routesList);
         String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/config/routes.ts";
+        overwrite(tpl, ctx, outputFilePath);
+    }
+
+    private static void overwrite(Template tpl, VelocityContext ctx, String outputFilePath) throws IOException {
         File outFile = new File(outputFilePath);
+        if (outFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            return;
+        }
         outFile.getParentFile().mkdirs();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
             tpl.merge(ctx, writer);
@@ -188,13 +204,7 @@ public class FrontScaffoldService {
             ctx.put("packName", table.getPrefix() + "/" + table.getServiceName());
         }
         String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/src/pages/" + outPath;
-        File outFile = new File(outputFilePath);
-        outFile.getParentFile().mkdirs();
-
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
-            tpl.merge(ctx, writer);
-        }
-        System.out.println("📄 生成文件：" + outputFilePath);
+        overwrite(tpl, ctx, outputFilePath);
     }
 
 

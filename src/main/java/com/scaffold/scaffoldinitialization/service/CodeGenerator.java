@@ -15,13 +15,14 @@ public class CodeGenerator {
         AdminScaffoldService.generateAdminScaffold("hy",
                 "com.hy",
                 tableInfos,
-                OUTPUT_DIR);
+                OUTPUT_DIR,
+                true);
         FrontScaffoldService.generateFrontScaffold("hy-ui",
                 tableInfos,
-                OUTPUT_DIR);
+                OUTPUT_DIR,
+                false);
         System.out.println("✅ 项目代码生成完成！");
     }
-
 
 
 }

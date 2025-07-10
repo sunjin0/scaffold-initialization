@@ -18,6 +18,8 @@ public class AdminScaffoldService {
     private static final String MODULE_COMMON = "common";
     private static final String MODULE_ADMIN = "admin";
     private static final String MODULE_FRONT = "front";
+    //覆盖原文件
+    private static boolean OVERWRITE = true;
     // 模板目录
     private static final String TEMPLATE_DIR = "templates";
     // 项目根目录
@@ -40,10 +42,11 @@ public class AdminScaffoldService {
     public static void generateAdminScaffold(String projectName,
                                              String packageName,
                                              ArrayList<TableInfo> tables,
-                                             String outputDir) throws Exception {
+                                             String outputDir, Boolean overwrite) throws Exception {
         PROJECT_ROOT = projectName;
         OUTPUT_DIR = outputDir;
         PACKAGE_NAME = packageName;
+        OVERWRITE = overwrite;
 
         // 1. 初始化Velocity引擎
         VelocityEngine ve = getVelocityEngine();
@@ -81,6 +84,14 @@ public class AdminScaffoldService {
         System.out.println("✅ 后台项目代码生成完成！");
     }
 
+    /**
+     * 生成测试文件
+     *
+     * @param tableOne   表信息
+     * @param template   模板
+     * @param moduleName 模块名称
+     * @throws IOException IO 异常
+     */
     private static void generateTestFile(TableInfo tableOne, Template template, String moduleName) throws IOException {
         VelocityContext ctx = new VelocityContext();
         ctx.put("packageName", tableOne.getPackageName());
@@ -185,88 +196,6 @@ public class AdminScaffoldService {
         generateMessageFile(ve);
     }
 
-    /**
-     * 获取消息模板映射
-     *
-     * @return {@link String[][] }
-     */
-    private static String[][] getMessageTemplateMapping() {
-        return new String[][]{
-                //entity
-                {"admin/base/msg/entity/Email.java.vm", "entity/Email.java"},
-                {"admin/base/msg/entity/Sms.java.vm", "entity/Sms.java"},
-                // vo
-                {"admin/base/msg/vo/EmailVo.java.vm", "vo/EmailVo.java"},
-                {"admin/base/msg/vo/SmsVo.java.vm", "vo/SmsVo.java"},
-                //mapper
-                {"admin/base/msg/mapper/EmailMessageMapper.java.vm", "mapper/EmailMessageMapper.java"},
-                {"admin/base/msg/mapper/SmsMessageMapper.java.vm", "mapper/SmsMessageMapper.java"},
-                //service
-                {"admin/base/msg/service/EmailMessageService.java.vm", "service/EmailMessageService.java"},
-                {"admin/base/msg/service/SmsMessageService.java.vm", "service/SmsMessageService.java"},
-                //impl
-                {"admin/base/msg/impl/EmailMessageServiceImpl.java.vm", "service/impl/EmailMessageServiceImpl.java"},
-                {"admin/base/msg/impl/SmsMessageServiceImpl.java.vm", "service/impl/SmsMessageServiceImpl.java"},
-                //controller
-                {"admin/base/msg/controller/EmailController.java.vm", "controller/EmailController.java"},
-                {"admin/base/msg/controller/SmsController.java.vm", "controller/SmsController.java"},
-        };
-    }
-
-    /**
-     * 获取 SYS 模板映射
-     *
-     * @return {@link String[][] }
-     */
-    private static String[][] getSysTemplateMapping() {
-        return new String[][]{
-                //entity
-                {"admin/base/sys/entity/Dict.java.vm", "entity/Dict.java"},
-                {"admin/base/sys/entity/Resource.java.vm", "entity/Resource.java"},
-                {"admin/base/sys/entity/Role.java.vm", "entity/Role.java"},
-                {"admin/base/sys/entity/User.java.vm", "entity/User.java"},
-                {"admin/base/sys/entity/UserRole.java.vm", "entity/UserRole.java"},
-                {"admin/base/sys/entity/RoleResource.java.vm", "entity/RoleResource.java"},
-                //vo
-                {"admin/base/sys/vo/DictVo.java.vm", "vo/DictVo.java"},
-                {"admin/base/sys/vo/RoleVo.java.vm", "vo/RoleVo.java"},
-                {"admin/base/sys/vo/ResourceVo.java.vm", "vo/ResourceVo.java"},
-                {"admin/base/sys/vo/UserVo.java.vm", "vo/UserVo.java"},
-                {"admin/base/sys/vo/RoleResourceVo.java.vm", "vo/RoleResourceVo.java"},
-                // service
-                {"admin/base/sys/service/DictService.java.vm", "service/DictService.java"},
-                {"admin/base/sys/service/ResourceService.java.vm", "service/ResourceService.java"},
-                {"admin/base/sys/service/RoleService.java.vm", "service/RoleService.java"},
-                {"admin/base/sys/service/RoleResourceService.java.vm", "service/RoleResourceService.java"},
-                {"admin/base/sys/service/UserService.java.vm", "service/UserService.java"},
-                {"admin/base/sys/service/UserRoleService.java.vm", "service/UserRoleService.java"},
-                {"admin/base/sys/service/TokenService.java.vm", "service/TokenService.java"},
-                //impl
-                {"admin/base/sys/impl/DictServiceImpl.java.vm", "service/impl/DictServiceImpl.java"},
-                {"admin/base/sys/impl/ResourceServiceImpl.java.vm", "service/impl/ResourceServiceImpl.java"},
-                {"admin/base/sys/impl/RoleServiceImpl.java.vm", "service/impl/RoleServiceImpl.java"},
-                {"admin/base/sys/impl/RoleResourceServiceImpl.java.vm", "service/impl/RoleResourceServiceImpl.java"},
-                {"admin/base/sys/impl/UserServiceImpl.java.vm", "service/impl/UserServiceImpl.java"},
-                {"admin/base/sys/impl/UserRoleServiceImpl.java.vm", "service/impl/UserRoleServiceImpl.java"},
-                {"admin/base/sys/impl/TokenServiceImpl.java.vm", "service/impl/TokenServiceImpl.java"},
-                //mapper
-                {"admin/base/sys/mapper/DictMapper.java.vm", "mapper/DictMapper.java"},
-                {"admin/base/sys/mapper/ResourceMapper.java.vm", "mapper/ResourceMapper.java"},
-                {"admin/base/sys/mapper/RoleMapper.java.vm", "mapper/RoleMapper.java"},
-                {"admin/base/sys/mapper/RoleResourceMapper.java.vm", "mapper/RoleResourceMapper.java"},
-                {"admin/base/sys/mapper/UserMapper.java.vm", "mapper/UserMapper.java"},
-                {"admin/base/sys/mapper/UserRoleMapper.java.vm", "mapper/UserRoleMapper.java"},
-                {"admin/base/sys/mapper/TokenMapper.java.vm", "mapper/TokenMapper.java"},
-                //controller
-                {"admin/base/sys/controller/DictController.java.vm", "controller/DictController.java"},
-                {"admin/base/sys/controller/ResourceController.java.vm", "controller/ResourceController.java"},
-                {"admin/base/sys/controller/RoleController.java.vm", "controller/RoleController.java"},
-                {"admin/base/sys/controller/RoleResourceController.java.vm", "controller/RoleResourceController.java"},
-                {"admin/base/sys/controller/UserController.java.vm", "controller/UserController.java"},
-                {"admin/base/sys/controller/LoginController.java.vm", "controller/LoginController.java"},
-
-        };
-    }
 
     /**
      * 代码生成器
@@ -388,6 +317,168 @@ public class AdminScaffoldService {
 
     }
 
+
+    /**
+     * 生成多个配置文件
+     *
+     * @param ve              模板引擎
+     * @param moduleName      模块名称
+     * @param targetSubDir    目标子目录
+     * @param templateMapping 模板映射关系 [[模板路径, 目标文件路径]]
+     * @throws Exception 异常
+     */
+    private static void generateMultipleConfigFiles(VelocityEngine ve, String moduleName, String targetSubDir, String[][] templateMapping, VelocityContext ctx) throws Exception {
+        for (String[] mapping : templateMapping) {
+            String sourceTemplate = mapping[0];
+            String targetFile = mapping[1];
+            generateConfigFileFromTemplate(ve, moduleName, sourceTemplate, targetSubDir, targetFile, ctx);
+        }
+    }
+
+    /**
+     * 使用 Velocity 模板引擎生成配置文件（支持变量替换）
+     *
+     * @param ve                 Velocity 引擎
+     * @param moduleName         模块名（如 "api"、"biz"），null 表示项目根目录
+     * @param sourceTemplatePath 模板路径（相对于 templates 的路径，如 "config/application-dev.yml.vm"）
+     * @param targetSubDir       目标子目录（如 "src/main/resources"）
+     * @param targetFileName     输出文件名（如 "application.yml"）
+     * @param context            Velocity 上下文（用于变量替换）
+     * @throws Exception 模板生成异常
+     */
+    private static void generateConfigFileFromTemplate(VelocityEngine ve,
+                                                       String moduleName,
+                                                       String sourceTemplatePath,
+                                                       String targetSubDir,
+                                                       String targetFileName,
+                                                       VelocityContext context) {
+        // 构建目标路径
+        String basePath = OUTPUT_DIR + PROJECT_ROOT;
+        if (moduleName != null && !moduleName.isEmpty()) {
+            basePath += "/" + moduleName;
+        }
+
+        // ✅ 使用 File 对象构造路径（更安全，跨平台兼容性好）
+        File targetDir = new File(basePath, targetSubDir); // C:\...\common\src\main\java
+        File targetFile = new File(targetDir, targetFileName); // + com/example/demo/config/AsyncConfig.java
+
+        if (targetFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
+            return;
+        }
+
+        // ✅ 确保父目录存在（即 java 下的包路径）
+        File parentDir = targetFile.getParentFile();
+        if (!parentDir.exists()) {
+            parentDir.mkdirs(); // 会自动创建 com → example → demo → config 路径
+        }
+
+        // 加载模板
+        Template template = ve.getTemplate(TEMPLATE_DIR + "/" + sourceTemplatePath, "UTF-8");
+
+        // 写入输出文件
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8)) {
+            template.merge(context, writer);
+        } catch (Exception e) {
+            System.err.println("无法写入文件: " + targetFile);
+            throw new RuntimeException("写入文件失败: " + targetFile, e);
+        }
+
+        System.out.println("📎 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
+    }
+
+
+    /**
+     * 生成模块 POM
+     *
+     * @param ve         ve
+     * @param moduleName 模块名称
+     * @throws Exception 例外
+     */
+    private static void generateModulePom(VelocityEngine ve, String moduleName) throws Exception {
+        VelocityContext ctx = new VelocityContext();
+        ctx.put("groupId", PACKAGE_NAME);
+        ctx.put("projectName", PROJECT_ROOT);
+        ctx.put("version", "1.0-SNAPSHOT");
+        ctx.put("module", moduleName);
+        ctx.put("java.version", "17");
+
+        Template tpl = ve.getTemplate(TEMPLATE_DIR + "/admin/" + "module-pom.vm", "UTF-8");
+        File outFile = new File(OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/pom.xml");
+        if (outFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            return;
+        }
+        outFile.getParentFile().mkdirs();
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+            tpl.merge(ctx, writer);
+        }
+    }
+
+    /**
+     * 使用模板生成文件到指定模块中
+     */
+    private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String module, String outPath) throws Exception {
+        String templates = TEMPLATE_DIR + "/admin/" + tplName;
+        Template tpl = ve.getTemplate(templates, "UTF-8");
+        VelocityContext ctx = new VelocityContext();
+        String packageName = table.getPackageName();
+        String fullPackageName = (table.getPrefix() != null)
+                ? packageName + "." + table.getPrefix()
+                : packageName;
+        ctx.put("packageName", fullPackageName);
+        ctx.put("tableName", table.getTableName());
+        ctx.put("className", table.getClassName());
+        ctx.put("serviceName", table.getServiceName());
+        ctx.put("classComment", table.getClassComment());
+        ctx.put("fields", table.getFields());
+        ctx.put("prefix", table.getPrefix() + "/");
+        ctx.put("packageName2", packageName);
+
+        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + module + "/src/main/java/" + outPath;
+        File outFile = new File(outputFilePath);
+        if (outFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + outputFilePath);
+            return;
+        }
+        outFile.getParentFile().mkdirs();
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+            tpl.merge(ctx, writer);
+        }
+        System.out.println("📄 生成文件：" + outputFilePath);
+    }
+
+    /**
+     * 使用模板生成文件
+     */
+    private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String outPath) throws Exception {
+        String templates = TEMPLATE_DIR + "/" + tplName;
+        Template tpl = ve.getTemplate(templates, "UTF-8");
+        VelocityContext ctx = new VelocityContext();
+        if (table.getPrefix() != null)
+            ctx.put("packageName", table.getPackageName() + "." + table.getPrefix());
+        else
+            ctx.put("packageName", table.getPackageName());
+        ctx.put("tableName", table.getTableName());
+        ctx.put("className", table.getClassName());
+        ctx.put("serviceName", table.getServiceName());
+        ctx.put("classComment", table.getClassComment());
+        ctx.put("fields", table.getFields());
+
+        File outFile = new File(OUTPUT_DIR + outPath);
+        if (outFile.exists() && !OVERWRITE) {
+            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            return;
+        }
+        outFile.getParentFile().mkdirs();
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
+            tpl.merge(ctx, writer);
+        }
+        System.out.println("📄 生成文件：" + outPath);
+    }
+
     /**
      * 获取模板映射
      *
@@ -496,166 +587,89 @@ public class AdminScaffoldService {
     }
 
     /**
-     * 生成多个配置文件
+     * 获取消息模板映射
      *
-     * @param ve              模板引擎
-     * @param moduleName      模块名称
-     * @param targetSubDir    目标子目录
-     * @param templateMapping 模板映射关系 [[模板路径, 目标文件路径]]
-     * @throws Exception 异常
+     * @return {@link String[][] }
      */
-    private static void generateMultipleConfigFiles(VelocityEngine ve, String moduleName, String targetSubDir, String[][] templateMapping, VelocityContext ctx) throws Exception {
-        for (String[] mapping : templateMapping) {
-            String sourceTemplate = mapping[0];
-            String targetFile = mapping[1];
-            generateConfigFileFromTemplate(ve, moduleName, sourceTemplate, targetSubDir, targetFile, ctx);
-        }
+    private static String[][] getMessageTemplateMapping() {
+        return new String[][]{
+                //entity
+                {"admin/base/msg/entity/Email.java.vm", "entity/Email.java"},
+                {"admin/base/msg/entity/Sms.java.vm", "entity/Sms.java"},
+                // vo
+                {"admin/base/msg/vo/EmailVo.java.vm", "vo/EmailVo.java"},
+                {"admin/base/msg/vo/SmsVo.java.vm", "vo/SmsVo.java"},
+                //mapper
+                {"admin/base/msg/mapper/EmailMessageMapper.java.vm", "mapper/EmailMessageMapper.java"},
+                {"admin/base/msg/mapper/SmsMessageMapper.java.vm", "mapper/SmsMessageMapper.java"},
+                //service
+                {"admin/base/msg/service/EmailMessageService.java.vm", "service/EmailMessageService.java"},
+                {"admin/base/msg/service/SmsMessageService.java.vm", "service/SmsMessageService.java"},
+                //impl
+                {"admin/base/msg/impl/EmailMessageServiceImpl.java.vm", "service/impl/EmailMessageServiceImpl.java"},
+                {"admin/base/msg/impl/SmsMessageServiceImpl.java.vm", "service/impl/SmsMessageServiceImpl.java"},
+                //controller
+                {"admin/base/msg/controller/EmailController.java.vm", "controller/EmailController.java"},
+                {"admin/base/msg/controller/SmsController.java.vm", "controller/SmsController.java"},
+        };
     }
 
     /**
-     * 使用 Velocity 模板引擎生成配置文件（支持变量替换）
+     * 获取 SYS 模板映射
      *
-     * @param ve                 Velocity 引擎
-     * @param moduleName         模块名（如 "api"、"biz"），null 表示项目根目录
-     * @param sourceTemplatePath 模板路径（相对于 templates 的路径，如 "config/application-dev.yml.vm"）
-     * @param targetSubDir       目标子目录（如 "src/main/resources"）
-     * @param targetFileName     输出文件名（如 "application.yml"）
-     * @param context            Velocity 上下文（用于变量替换）
-     * @throws Exception 模板生成异常
+     * @return {@link String[][] }
      */
-    private static void generateConfigFileFromTemplate(VelocityEngine ve,
-                                                       String moduleName,
-                                                       String sourceTemplatePath,
-                                                       String targetSubDir,
-                                                       String targetFileName,
-                                                       VelocityContext context) {
-        // 构建目标路径
-        String basePath = OUTPUT_DIR + PROJECT_ROOT;
-        if (moduleName != null && !moduleName.isEmpty()) {
-            basePath += "/" + moduleName;
-        }
-
-        // ✅ 使用 File 对象构造路径（更安全，跨平台兼容性好）
-        File targetDir = new File(basePath, targetSubDir); // C:\...\common\src\main\java
-        File targetFile = new File(targetDir, targetFileName); // + com/example/demo/config/AsyncConfig.java
-
-//        if (targetFile.exists()) {
-//            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
-//            return;
-//        }
-
-        // ✅ 确保父目录存在（即 java 下的包路径）
-        File parentDir = targetFile.getParentFile();
-        if (!parentDir.exists()) {
-            parentDir.mkdirs(); // 会自动创建 com → example → demo → config 路径
-        }
-
-        // 加载模板
-        Template template = ve.getTemplate(TEMPLATE_DIR + "/" + sourceTemplatePath, "UTF-8");
-
-        // 写入输出文件
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8)) {
-            template.merge(context, writer);
-        } catch (Exception e) {
-            System.err.println("无法写入文件: " + targetFile);
-            throw new RuntimeException("写入文件失败: " + targetFile, e);
-        }
-
-        System.out.println("📎 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
-    }
-
-    /**
-     * 获取相对于根目录的相对路径
-     */
-    private static String getRelativePath(File rootDir, File currentDir) {
-        String rootPath = rootDir.getAbsolutePath();
-        String currentPath = currentDir.getAbsolutePath();
-        if (!currentPath.startsWith(rootPath)) {
-            throw new IllegalArgumentException("currentDir 不在 rootDir 路径下");
-        }
-        return currentPath.substring(rootPath.length() + 1).replace("\\", "/");
-    }
-
-    /**
-     * 生成模块 POM
-     *
-     * @param ve         ve
-     * @param moduleName 模块名称
-     * @throws Exception 例外
-     */
-    private static void generateModulePom(VelocityEngine ve, String moduleName) throws Exception {
-        VelocityContext ctx = new VelocityContext();
-        ctx.put("groupId", PACKAGE_NAME);
-        ctx.put("projectName", PROJECT_ROOT);
-        ctx.put("version", "1.0-SNAPSHOT");
-        ctx.put("module", moduleName);
-        ctx.put("java.version", "17");
-
-        Template tpl = ve.getTemplate(TEMPLATE_DIR + "/admin/" + "module-pom.vm", "UTF-8");
-        File outFile = new File(OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/pom.xml");
-        outFile.getParentFile().mkdirs();
-
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
-            tpl.merge(ctx, writer);
-        }
-    }
-
-    /**
-     * 使用模板生成文件到指定模块中
-     */
-    private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String module, String outPath) throws Exception {
-        String templates = TEMPLATE_DIR + "/admin/" + tplName;
-        Template tpl = ve.getTemplate(templates, "UTF-8");
-        VelocityContext ctx = new VelocityContext();
-        String packageName = table.getPackageName();
-        String fullPackageName = (table.getPrefix() != null)
-                ? packageName + "." + table.getPrefix()
-                : packageName;
-        ctx.put("packageName", fullPackageName);
-        ctx.put("tableName", table.getTableName());
-        ctx.put("className", table.getClassName());
-        ctx.put("serviceName", table.getServiceName());
-        ctx.put("classComment", table.getClassComment());
-        ctx.put("fields", table.getFields());
-        ctx.put("prefix", table.getPrefix() + "/");
-        ctx.put("packageName2", packageName);
-
-        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + module + "/src/main/java/" + outPath;
-        File outFile = new File(outputFilePath);
-//        if (outFile.exists()) {
-//            System.out.println("⚠️ 文件已存在，跳过生成：" + outputFilePath);
-//            return;
-//        }
-        outFile.getParentFile().mkdirs();
-
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
-            tpl.merge(ctx, writer);
-        }
-        System.out.println("📄 生成文件：" + outputFilePath);
-    }
-
-    /**
-     * 使用模板生成文件
-     */
-    private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String outPath) throws Exception {
-        String templates = TEMPLATE_DIR + "/" + tplName;
-        Template tpl = ve.getTemplate(templates, "UTF-8");
-        VelocityContext ctx = new VelocityContext();
-        if (table.getPrefix() != null)
-            ctx.put("packageName", table.getPackageName() + "." + table.getPrefix());
-        else
-            ctx.put("packageName", table.getPackageName());
-        ctx.put("tableName", table.getTableName());
-        ctx.put("className", table.getClassName());
-        ctx.put("serviceName", table.getServiceName());
-        ctx.put("classComment", table.getClassComment());
-        ctx.put("fields", table.getFields());
-
-        File outFile = new File(OUTPUT_DIR + outPath);
-        outFile.getParentFile().mkdirs();
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
-            tpl.merge(ctx, writer);
-        }
-        System.out.println("📄 生成文件：" + outPath);
+    private static String[][] getSysTemplateMapping() {
+        return new String[][]{
+                //entity
+                {"admin/base/sys/entity/Dict.java.vm", "entity/Dict.java"},
+                {"admin/base/sys/entity/Resource.java.vm", "entity/Resource.java"},
+                {"admin/base/sys/entity/Role.java.vm", "entity/Role.java"},
+                {"admin/base/sys/entity/User.java.vm", "entity/User.java"},
+                {"admin/base/sys/entity/UserRole.java.vm", "entity/UserRole.java"},
+                {"admin/base/sys/entity/RoleResource.java.vm", "entity/RoleResource.java"},
+                {"admin/base/sys/entity/Config.java.vm", "entity/Config.java"},
+                //vo
+                {"admin/base/sys/vo/DictVo.java.vm", "vo/DictVo.java"},
+                {"admin/base/sys/vo/RoleVo.java.vm", "vo/RoleVo.java"},
+                {"admin/base/sys/vo/ResourceVo.java.vm", "vo/ResourceVo.java"},
+                {"admin/base/sys/vo/UserVo.java.vm", "vo/UserVo.java"},
+                {"admin/base/sys/vo/RoleResourceVo.java.vm", "vo/RoleResourceVo.java"},
+                {"admin/base/sys/vo/ConfigVo.java.vm", "vo/ConfigVo.java"},
+                // service
+                {"admin/base/sys/service/DictService.java.vm", "service/DictService.java"},
+                {"admin/base/sys/service/ResourceService.java.vm", "service/ResourceService.java"},
+                {"admin/base/sys/service/RoleService.java.vm", "service/RoleService.java"},
+                {"admin/base/sys/service/RoleResourceService.java.vm", "service/RoleResourceService.java"},
+                {"admin/base/sys/service/UserService.java.vm", "service/UserService.java"},
+                {"admin/base/sys/service/UserRoleService.java.vm", "service/UserRoleService.java"},
+                {"admin/base/sys/service/TokenService.java.vm", "service/TokenService.java"},
+                {"admin/base/sys/service/ConfigService.java.vm", "service/ConfigService.java"},
+                //impl
+                {"admin/base/sys/impl/DictServiceImpl.java.vm", "service/impl/DictServiceImpl.java"},
+                {"admin/base/sys/impl/ResourceServiceImpl.java.vm", "service/impl/ResourceServiceImpl.java"},
+                {"admin/base/sys/impl/RoleServiceImpl.java.vm", "service/impl/RoleServiceImpl.java"},
+                {"admin/base/sys/impl/RoleResourceServiceImpl.java.vm", "service/impl/RoleResourceServiceImpl.java"},
+                {"admin/base/sys/impl/UserServiceImpl.java.vm", "service/impl/UserServiceImpl.java"},
+                {"admin/base/sys/impl/UserRoleServiceImpl.java.vm", "service/impl/UserRoleServiceImpl.java"},
+                {"admin/base/sys/impl/TokenServiceImpl.java.vm", "service/impl/TokenServiceImpl.java"},
+                {"admin/base/sys/impl/ConfigServiceImpl.java.vm", "service/impl/ConfigServiceImpl.java"},
+                //mapper
+                {"admin/base/sys/mapper/DictMapper.java.vm", "mapper/DictMapper.java"},
+                {"admin/base/sys/mapper/ResourceMapper.java.vm", "mapper/ResourceMapper.java"},
+                {"admin/base/sys/mapper/RoleMapper.java.vm", "mapper/RoleMapper.java"},
+                {"admin/base/sys/mapper/RoleResourceMapper.java.vm", "mapper/RoleResourceMapper.java"},
+                {"admin/base/sys/mapper/UserMapper.java.vm", "mapper/UserMapper.java"},
+                {"admin/base/sys/mapper/UserRoleMapper.java.vm", "mapper/UserRoleMapper.java"},
+                {"admin/base/sys/mapper/TokenMapper.java.vm", "mapper/TokenMapper.java"},
+                {"admin/base/sys/mapper/ConfigMapper.java.vm", "mapper/ConfigMapper.java"},
+                //controller
+                {"admin/base/sys/controller/DictController.java.vm", "controller/DictController.java"},
+                {"admin/base/sys/controller/ResourceController.java.vm", "controller/ResourceController.java"},
+                {"admin/base/sys/controller/RoleController.java.vm", "controller/RoleController.java"},
+                {"admin/base/sys/controller/RoleResourceController.java.vm", "controller/RoleResourceController.java"},
+                {"admin/base/sys/controller/UserController.java.vm", "controller/UserController.java"},
+                {"admin/base/sys/controller/LoginController.java.vm", "controller/LoginController.java"},
+        };
     }
 }

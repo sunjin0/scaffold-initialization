@@ -76,11 +76,7 @@ public class DictController {
                                      @ValidEntity(fieldNames = {"code", "name", "nameCn"})
                                      Dict dict) {
         boolean save = dictService.save(dict);
-        if (dict.getId() != null) {
-            return WebResponse.OK(I18nUtils.getMessage(save ? "update.success" : "update.fail"), save);
-        } else {
             return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"), save);
-        }
     }
     @ApiOperation("修改字典")
     @ApiImplicitParams({
