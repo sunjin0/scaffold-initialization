@@ -46,7 +46,7 @@ public class EmailMessageServiceImpl extends ServiceImpl<EmailMessageMapper, Ema
         this.list(Wrappers.lambdaQuery(Email.class)
                 .eq(Email::getUserId, userId)
                 .eq(Email::getState, State.Success.getCode())
-                .orderByDesc(Email::getCreateAt));
+                .orderByDesc(Email::getCreatedAt));
         return null;
     }
 
@@ -62,7 +62,7 @@ public class EmailMessageServiceImpl extends ServiceImpl<EmailMessageMapper, Ema
                         .eq(message.getState() != null, Email::getState, message.getState())
                         .eq(message.getUserId() != null, Email::getUserId, message.getUserId())
                         .ne(Email::getState, State.Delete.getCode())
-                        .orderByDesc(Email::getCreateAt));
+                        .orderByDesc(Email::getCreatedAt));
     }
 
     @Transactional(rollbackFor = Exception.class)

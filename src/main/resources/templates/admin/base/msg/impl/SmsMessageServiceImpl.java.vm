@@ -42,7 +42,7 @@ public class SmsMessageServiceImpl extends ServiceImpl<SmsMessageMapper, Sms> im
                         .eq(message.getType() != null, Sms::getType, message.getType())
                         .eq(message.getState() != null, Sms::getState, message.getState())
                         .eq(message.getUserId() != null, Sms::getUserId, message.getUserId())
-                        .orderByDesc(Sms::getCreateAt));
+                        .orderByDesc(Sms::getCreatedAt));
     }
 
     @Override

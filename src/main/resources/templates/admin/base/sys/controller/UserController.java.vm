@@ -63,7 +63,7 @@ public class UserController {
                 .like(StringUtils.isNotBlank(user.getUsername()), User::getUsername, user.getUsername())
                 .like(StringUtils.isNotBlank(user.getPhone()), User::getPhone, user.getPhone())
                 .like(StringUtils.isNotBlank(user.getEmail()), User::getEmail, user.getEmail())
-                .orderByDesc(User::getCreateAt);
+                .orderByDesc(User::getCreatedAt);
         Page<User> page = userService.page(userPage, queryWrapper);
         List<UserVo> userVos = page.getRecords().stream().map(item -> {
             UserVo userVo = new UserVo();

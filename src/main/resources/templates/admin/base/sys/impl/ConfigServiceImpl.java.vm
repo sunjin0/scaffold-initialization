@@ -121,7 +121,7 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         Config one = this.getOne(Wrappers.lambdaQuery(Config.class)
                 .eq(Config::getCode, code)
                 .eq(Config::getState, State.Success.getCode())
-                .orderByDesc(Config::getCreateAt)
+                .orderByDesc(Config::getCreatedAt)
                 .last("limit 1"));
         return one == null ? null : one.getValue();
     }

@@ -62,7 +62,7 @@ public class RoleController {
                 .eq(Role::getState, State.Success.getCode())
                 .like(StringUtils.isNotBlank(role.getName()), Role::getName, role.getName())
                 .like(StringUtils.isNotBlank(role.getDescription()), Role::getDescription, role.getDescription())
-                .orderByDesc(Role::getCreateAt);
+                .orderByDesc(Role::getCreatedAt);
         Page<Role> rolePage = roleService.page(dictPage, queryWrapper);
         return WebResponse.Page(rolePage.getRecords(), rolePage.getTotal());
     }

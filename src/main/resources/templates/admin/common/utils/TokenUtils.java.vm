@@ -113,8 +113,6 @@ public class TokenUtils {
         //加密刷新令牌
         Token.setRefreshToken(AesUtil.encrypt(refreshToken));
         Token.setState(1);
-        Token.setCreateAt(System.currentTimeMillis());
-        Token.setUpdateAt(System.currentTimeMillis());
         return Token;
     }
 }
