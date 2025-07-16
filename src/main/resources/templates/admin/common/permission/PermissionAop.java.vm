@@ -62,15 +62,20 @@ public class PermissionAop {
         String userId = user.get("userId");
         HashOperations<String, Object, Object> operations = redisTemplate.opsForHash();
 
-        Boolean permission = (Boolean) operations.get(userId, path);
-        // 判断是否是读操作
-        if (permission != null && type == Permission.Type.Read) {
-            return;
+        Object permissionMap = operations.get(TokenUtils.TOKEN_KEY, userId);
+        if (permissionMap instanceof HashMap) {
+            HashMap<String, Object> map = (HashMap<String, Object>) permissionMap;
+            Boolean permission = (Boolean) map.get(path);
+            // 判断是否是读操作
+            if (permission != null && type == Permission.Type.Read) {
+                return;
+            }
+            // 判断是否是写操作
+            if (permission != null && type == Permission.Type.Write && permission) {
+                return;
+            }
         }
-        // 判断是否是写操作
-        if (permission != null && type == Permission.Type.Write && permission) {
-            return;
-        }
+
         throw new ServerException(403, I18nUtils.getMessage("auth.error.no.permission"));
     }
 }

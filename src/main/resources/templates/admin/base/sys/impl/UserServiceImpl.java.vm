@@ -57,15 +57,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private BCryptPasswordEncoder encoder;
 
+
     @Override
     public Boolean register(UserVo user) throws ServerException {
         String email = user.getEmail();
         String phone = user.getPhone();
         Integer verificationCode = user.getVerificationCode();
         // 检查邮箱和手机号是否已存在
-        if(checkEmail(email))
+        if (checkEmail(email))
             throw new ServerException(400, I18nUtils.getMessage("user.email.exist"));
-        if(checkPhone(phone))
+        if (checkPhone(phone))
             throw new ServerException(400, I18nUtils.getMessage("user.phone.exist"));
         // 验证码校验
         checkCode(email, verificationCode);
@@ -81,8 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             LambdaQueryWrapper<Email> query = Wrappers.lambdaQuery(Email.class);
             query
                     .eq(Email::getEmail, email)
-                    .eq(Email::getCode, verificationCode)
-                    .eq(Email::getState, State.Success.getCode());
+                    .eq(Email::getCode, verificationCode);
             Email one = emailService.getOne(query);
             if (one == null) {
                 throw new ServerException(400, I18nUtils.getMessage("user.captcha.error"));
@@ -107,8 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String password = user.getPassword();
         String oldPassword = user.getOldPassword();
         User dbUser = getOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getId, CurrentUser.getUser().get("userId"))
-                .eq(User::getState, State.Success.getCode()));
+                .eq(User::getId, CurrentUser.getUser().get("userId")));
         if (encoder.matches(oldPassword, dbUser.getPassword())) {
             dbUser.setPassword(encoder.encode(password));
             return updateById(dbUser);
@@ -124,17 +123,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 判断account是否是邮箱
         boolean matches = account.matches("^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$");
         LambdaQueryWrapper<User> query = Wrappers.lambdaQuery(User.class);
-        query.eq(User::getState, State.Success.getCode());
         // 邮箱或手机号
         if (matches) {
             query.eq(User::getEmail, account);
             // 检查邮箱
-            if(!checkEmail(account))
+            if (!checkEmail(account))
                 throw new ServerException(400, I18nUtils.getMessage("user.email.not.exist"));
         } else {
             query.eq(User::getPhone, account);
             // 检查手机号
-            if(!checkPhone(account))
+            if (!checkPhone(account))
                 throw new ServerException(400, I18nUtils.getMessage("user.phone.not.exist"));
         }
         User dbUser = getOne(query);
@@ -143,28 +141,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         return true;
     }
+
     /**
      * 检查手机号是否存在
      *
      * @param account 手机号
-     * @return  true：存在，false：不存在
+     * @return true：存在，false：不存在
      */
     private Boolean checkPhone(String account) throws ServerException {
         User phone = this.getOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getPhone, account)
-                .eq(User::getState, State.Success.getCode()));
+                .eq(User::getPhone, account));
         return phone != null;
     }
+
     /**
      * 检查邮箱是否存在
      *
      * @param account 邮箱
-     * @return  true：存在，false：不存在
+     * @return true：存在，false：不存在
      */
     private Boolean checkEmail(String account) throws ServerException {
         User email = this.getOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getEmail, account)
-                .eq(User::getState, State.Success.getCode()));
+                .eq(User::getEmail, account));
         return email != null;
     }
 
@@ -174,12 +172,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String email = user.getEmail();
         Integer verificationCode = user.getVerificationCode();
         // 邮箱是否存在
-        if(!checkEmail(email))
+        if (!checkEmail(email))
             throw new ServerException(400, I18nUtils.getMessage("user.email.not.exist"));
         checkCode(email, verificationCode);
         User one = getOne(Wrappers.lambdaQuery(User.class)
-                .eq(User::getEmail, email)
-                .eq(User::getState, State.Success.getCode()));
+                .eq(User::getEmail, email));
         one.setPassword(null);
         BeanUtils.copyProperties(one, user);
         //生成token
@@ -192,6 +189,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setRefreshToken(token.getRefreshToken());
         tokenService.saveOrUpdate(token, Wrappers.lambdaUpdate(Token.class)
                 .eq(Token::getUserId, user.getId()));
+        redisTemplate.opsForHash().put(TokenUtils.TOKEN_KEY, one.getId(), this.getPermissionMap(token.getToken()));
+
         return user;
 
     }
@@ -221,7 +220,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 1.获取用户角色
             List<UserRole> roles = userRoleService.list(Wrappers.<UserRole>lambdaQuery()
                     .select(UserRole::getRoleId)
-                    .eq(UserRole::getState, State.Success.getCode())
                     .eq(UserRole::getUserId, userId));
             if (roles.isEmpty()) {
                 return routes;
@@ -230,7 +228,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             List<Integer> roleIds = roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
             List<RoleResource> resources = roleResourceService.list(Wrappers.<RoleResource>lambdaQuery()
                     .select(RoleResource::getResourceId)
-                    .eq(RoleResource::getState, State.Success.getCode())
                     .in(RoleResource::getRoleId, roleIds)
                     .orderByAsc(RoleResource::getSortNum));
             if (resources.isEmpty()) {
@@ -239,7 +236,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 3.获取资源
             Set<Integer> resourceIds = resources.stream().map(RoleResource::getResourceId).collect(Collectors.toSet());
             List<ResourceVo> list = resourceService.list(Wrappers.lambdaQuery(com.hy.sys.entity.Resource.class)
-                    .eq(com.hy.sys.entity.Resource::getState, State.Success.getCode())
                     .in(com.hy.sys.entity.Resource::getId, resourceIds)
                     .orderByAsc(com.hy.sys.entity.Resource::getSortNum)).stream().map(v -> {
                 ResourceVo resourceVo = new ResourceVo();
@@ -305,6 +301,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = this.getById(currentUser.get("userId"));
         user.setPassword(null);
         BeanUtils.copyProperties(user, userVo);
+        HashMap<String, Object> map = getPermissionMap(currentUser.get("token"));
+        userVo.setPermissionMap(map);
+        return userVo;
+    }
+
+    @NotNull
+    private HashMap<String, Object> getPermissionMap(String token) {
         List<ResourceVo> routers = this.getRouters();
         HashMap<String, Object> map = new HashMap<>();
         if (!routers.isEmpty()) {
@@ -319,22 +322,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
         try {
-            String token = currentUser.get("token");
             TokenUtils.isExpired(token);
             map.put("/sys", false);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
-        userVo.setPermissionMap(map);
-        return userVo;
+        return map;
     }
 
     @Async
     @Override
     public void sendVerificationCode(String email) {
         User user = this.getOne(Wrappers.<User>lambdaQuery()
-                .eq(User::getEmail, email)
-                .eq(User::getState, State.Success.getCode()));
+                .eq(User::getEmail, email));
         if (user == null) {
             throw new ServerException(I18nUtils.getMessage("user.email.not.exist"));
         }
@@ -355,8 +355,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean logout() {
-        return tokenService.update(Wrappers.<Token>lambdaUpdate()
-                .eq(Token::getUserId, CurrentUser.getUser().get("userId"))
-                .set(Token::getState, State.Delete.getCode()));
+        return tokenService.remove(Wrappers.<Token>lambdaUpdate()
+                .eq(Token::getUserId, CurrentUser.getUser().get("userId")));
     }
 }
