@@ -9,7 +9,6 @@ import ${packageName}.mapper.ResourceMapper;
 import ${packageName}.service.ResourceService;
 import ${packageName2}.entity.BaseEntity;
 import ${packageName}.entity.Resource;
-import ${packageName2}.enums.State;
 import ${packageName2}.enums.ResourceType;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName}.vo.ResourceVo;
@@ -39,7 +38,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         Page<Resource> resourcePage = new Page<>(resource.getCurrent(), resource.getPageSize());
         // 查询条件
         Wrapper<Resource> queryWrapper = Wrappers.lambdaQuery(Resource.class)
-                .eq(Resource::getState, State.Success.getCode())
                 .like(StringUtils.isNotBlank(resource.getNameCn()), Resource::getNameCn, resource.getNameCn())
                 .like(StringUtils.isNotBlank(resource.getName()), Resource::getName, resource.getName())
                 .like(StringUtils.isNotBlank(resource.getPath()), Resource::getPath, resource.getPath())
@@ -64,7 +62,6 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         List<String> parentIds = resourceVos.stream().map(ResourceVo::getId).collect(Collectors.toList());
         // 查询非父id的所有子资源
         List<ResourceVo> list = this.list(Wrappers.lambdaQuery(Resource.class)
-                .eq(Resource::getState, State.Success.getCode())
                 .notIn(Resource::getId, parentIds)).stream().map(record -> {
             ResourceVo resourceVo = new ResourceVo();
             BeanUtils.copyProperties(record, resourceVo);

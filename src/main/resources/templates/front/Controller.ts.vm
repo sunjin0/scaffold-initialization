@@ -1,9 +1,10 @@
 import {request} from "@umijs/max";
+import {ResponseStructure} from "@/services/entity/Common";
 /**
  * ${classComment}查询参数
  * @since ${now}
  */
-export interface SearchParams extends ${className} {
+export interface ${className}SearchParams extends ${className} {
     current: number;
     pageSize: number;
 }
@@ -22,7 +23,7 @@ export interface ${className} {
  * @since ${now}
  * @returns 查询结果
  */
-export const get${className}List = async (params: SearchParams): Promise<${className}[]> => {
+export const get${className}List = async (params: ${className}SearchParams): Promise<ResponseStructure<${className}[]>> => {
     return await request('/api/${path}/list', {
         method: 'get',
         params: params,
@@ -34,7 +35,7 @@ export const get${className}List = async (params: SearchParams): Promise<${class
  * @since ${now}
  * @returns 查询结果
  */
-export const get${className}Info = async (params: SearchParams): Promise<${className}> => {
+export const get${className}Info = async (params: ${className}SearchParams): Promise<ResponseStructure<${className}>> => {
     let {data} = await request('/api/${path}/info', {
         method: 'get',
         params: params,

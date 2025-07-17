@@ -7,9 +7,9 @@ import {Dict, DictSearchParams} from "@/services/entity/Sys";
  * @since 2025-07-17
  */
 export const getDictList = async (params: DictSearchParams): Promise<ResponseStructure<Dict[]>> => {
-  return request<Option[]>('/api/sys/dict/list', {
-    method: 'GET',
-    params,
+  return request('/api/sys/dict/list', {
+    method: 'POST',
+    data: params,
   });
 }
 /**
@@ -17,9 +17,9 @@ export const getDictList = async (params: DictSearchParams): Promise<ResponseStr
  * @since 2025-07-17
  */
 export const getDictInfo = async (params: DictSearchParams): Promise<ResponseStructure<Dict>> => {
-  return request<Dict>('/api/sys/dict/info', {
+  return request('/api/sys/dict/info', {
     method: 'GET',
-    params,
+    params:{id:params},
   });
 }
 /**
@@ -27,7 +27,7 @@ export const getDictInfo = async (params: DictSearchParams): Promise<ResponseStr
  * @since 2025-07-17
  */
 export const addDictInfo = async (params: Dict): Promise<ResponseStructure<Dict>> => {
-  return request<Dict>('/api/sys/dict/add', {
+  return request('/api/sys/dict/add', {
     method: 'POST',
     data: params,
   });
@@ -37,7 +37,7 @@ export const addDictInfo = async (params: Dict): Promise<ResponseStructure<Dict>
  * @since 2025-07-17
  */
 export const updateDictInfo = async (params: Dict): Promise<ResponseStructure<Dict>> => {
-  return request<Dict>('/api/sys/dict/update', {
+  return request('/api/sys/dict/update', {
     method: 'POST',
     data: params,
   });
@@ -47,7 +47,7 @@ export const updateDictInfo = async (params: Dict): Promise<ResponseStructure<Di
  * @since 2025-07-17
  */
 export const deleteDictInfo = async (params: DictSearchParams): Promise<ResponseStructure<Dict>> => {
-  return request<ResponseStructure<Dict>>('/api/sys/dict/delete', {
+  return request('/api/sys/dict/delete', {
     method: 'GET',
     params,
   });
@@ -58,7 +58,7 @@ export const deleteDictInfo = async (params: DictSearchParams): Promise<Response
  * @since 2025-07-17
  */
 export const getOptionList = async (parentCode: string): Promise<Option[]> => {
-  let {data} = await request<Option[]>(`/api/sys/dict/option`, {
+  let {data} = await request(`/api/sys/dict/options`, {
     method: 'GET',
     params: {
       parentCode

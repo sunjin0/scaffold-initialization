@@ -107,7 +107,7 @@ public class TokenUtils {
      */
     private static Token getToken(Map<String, String> payload, String token, String refreshToken) {
         Token Token = new Token();
-        Token.setUserId(Integer.valueOf(payload.get("userId")));
+        Token.setUserId(payload.get("userId"));
         //加密令牌
         Token.setToken(AesUtil.encrypt(token));
         //加密刷新令牌

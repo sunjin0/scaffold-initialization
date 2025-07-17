@@ -3,7 +3,6 @@ package ${packageName}.service.impl;
 import ${packageName}.mapper.DictMapper;
 import ${packageName2}.entity.Option;
 import ${packageName}.entity.Dict;
-import ${packageName2}.enums.State;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName}.vo.DictVo;
 import ${packageName}.service.DictService;
@@ -31,8 +30,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     @Override
     public Dict getByCode(String code, String lng) {
         Dict dist = this.getOne(Wrappers.lambdaQuery(Dict.class)
-                .eq(Dict::getCode, code)
-                .eq(Dict::getState, State.Success.getCode()));
+                .eq(Dict::getCode, code));
         if (dist != null) {
             SwitchLang(dist, lng);
             return dist;
@@ -67,7 +65,6 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 .like(StringUtils.isNotBlank(dict.getVal()), Dict::getVal, dict.getVal())
                 .like(StringUtils.isNotBlank(dict.getName()), Dict::getName, dict.getName())
                 .eq(StringUtils.isNotBlank(dict.getId()), Dict::getId, dict.getId())
-                .eq(Dict::getState, State.Success.getCode())
                 .orderByAsc(Dict::getSortNum);
         if (dict.getId() == null && dict.getName() == null && dict.getNameCn() == null && dict.getVal() == null && dict.getCode() == null && dict.getRemark() == null) {
             query.isNull(Dict::getParent);
@@ -78,7 +75,6 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         List<String> parentIds = records.stream().map(Dict::getCode).collect(Collectors.toList());
         //所有子资源
         List<Dict> list = list(Wrappers.lambdaQuery(Dict.class)
-                .eq(Dict::getState, State.Success.getCode())
                 .notIn(Dict::getCode, parentIds)
                 .isNotNull(Dict::getParent));
         //添加所有子资源
@@ -139,7 +135,6 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
             }
         }
         return update(Wrappers.lambdaUpdate(Dict.class)
-                .set(Dict::getState, State.Delete.getCode())
                 .in(Dict::getId, ids));
     }
 
@@ -156,7 +151,6 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     @Override
     public List<Dict> select() {
         return this.list(Wrappers.lambdaQuery(Dict.class)
-                .eq(Dict::getState, State.Success.getCode())
                 .orderByAsc(Dict::getSortNum));
     }
 
@@ -168,8 +162,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 
     private List<Dict> getByParentCode(String parentCode) {
         return this.list(Wrappers.lambdaQuery(Dict.class)
-                .eq(Dict::getParent, parentCode)
-                .eq(Dict::getState, State.Success.getCode()));
+                .eq(Dict::getParent, parentCode));
     }
 
 }

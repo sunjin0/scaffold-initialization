@@ -16,7 +16,7 @@ public class CodeGenerator {
                 "com.hy",
                 tableInfos,
                 OUTPUT_DIR,
-                false);
+                true);
         FrontScaffoldService.generateFrontScaffold("hy-ui",
                 tableInfos,
                 OUTPUT_DIR,

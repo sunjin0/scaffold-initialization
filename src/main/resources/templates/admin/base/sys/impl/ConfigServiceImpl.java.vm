@@ -3,7 +3,6 @@ package ${packageName}.service.impl;
 import ${packageName}.mapper.ConfigMapper;
 import ${packageName2}.entity.Option;
 import ${packageName}.entity.Config;
-import ${packageName2}.enums.State;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName}.vo.ConfigVo;
 import ${packageName}.service.ConfigService;
@@ -42,7 +41,6 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
                 .like(StringUtils.isNotBlank(config.getValue()), Config::getValue, config.getValue())
                 .like(StringUtils.isNotBlank(config.getName()), Config::getName, config.getName())
                 .eq(StringUtils.isNotBlank(config.getId()), Config::getId, config.getId())
-                .eq(Config::getState, State.Success.getCode())
                 .orderByAsc(Config::getSortNum);
         if (config.getId() == null && config.getName() == null && config.getValue() == null && config.getCode() == null && config.getRemark() == null) {
             query.isNull(Config::getParent);
@@ -53,7 +51,6 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         List<String> parentIds = records.stream().map(Config::getCode).collect(Collectors.toList());
         //所有子资源
         List<Config> list = list(Wrappers.lambdaQuery(Config.class)
-                .eq(Config::getState, State.Success.getCode())
                 .notIn(Config::getCode, parentIds)
                 .isNotNull(Config::getParent));
         //添加所有子资源
@@ -113,14 +110,12 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
             }
         }
         return update(Wrappers.lambdaUpdate(Config.class)
-                .set(Config::getState, State.Delete.getCode())
                 .in(Config::getId, ids));
     }
     @Override
     public String getValue(String code) {
         Config one = this.getOne(Wrappers.lambdaQuery(Config.class)
                 .eq(Config::getCode, code)
-                .eq(Config::getState, State.Success.getCode())
                 .orderByDesc(Config::getCreatedAt)
                 .last("limit 1"));
         return one == null ? null : one.getValue();

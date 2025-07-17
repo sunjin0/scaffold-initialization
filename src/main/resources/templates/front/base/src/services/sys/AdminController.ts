@@ -7,9 +7,9 @@ import {Option, ResponseStructure} from "@/services/entity/Common";
  * @since 2025-07-17
  */
 export const getAdminList = async (params: AdminSearchParams): Promise<ResponseStructure<Admin[]>> =>{
-  return request<Admin[]>('/api/sys/admin/list', {
-    method: 'GET',
-    params,
+  return request('/api/sys/admin/list', {
+    method: 'POST',
+    data: params,
   });
 }
 /**
@@ -17,9 +17,9 @@ export const getAdminList = async (params: AdminSearchParams): Promise<ResponseS
  * @since 2025-07-17
  */
 export const getAdminInfo = async (params: AdminSearchParams): Promise<ResponseStructure<Admin>> =>{
-  return request<Admin>('/api/sys/admin/info', {
+  return request('/api/sys/admin/info', {
     method: 'GET',
-    params,
+    params:{id:params},
   });
 }
 /**
@@ -27,7 +27,7 @@ export const getAdminInfo = async (params: AdminSearchParams): Promise<ResponseS
  * @since 2025-07-17
  */
 export const addAdminInfo = async (params: Admin): Promise<ResponseStructure<Admin>> =>{
-  return request<Admin>('/api/sys/admin/add', {
+  return request('/api/sys/admin/add', {
     method: 'POST',
     data: params,
   });
@@ -37,7 +37,7 @@ export const addAdminInfo = async (params: Admin): Promise<ResponseStructure<Adm
  * @since 2025-07-17
  */
 export const updateAdminInfo = async (params: Admin): Promise<ResponseStructure<Admin>> =>{
-  return request<Admin>('/api/sys/admin/update', {
+  return request('/api/sys/admin/update', {
     method: 'POST',
     data: params,
   })
@@ -47,7 +47,7 @@ export const updateAdminInfo = async (params: Admin): Promise<ResponseStructure<
  * @since 2025-07-17
  */
 export const deleteAdminInfo = async (params: AdminSearchParams): Promise<ResponseStructure<Admin>> =>{
-  return request<Admin>('/api/sys/admin/delete', {
+  return request('/api/sys/admin/delete', {
     method: 'GET',
     params:{
       id: params.id
@@ -59,7 +59,7 @@ export const deleteAdminInfo = async (params: AdminSearchParams): Promise<Respon
  * @since 2025-07-17
  */
 export const getRoleOptions = async (): Promise<Option[]> =>{
-  return request<Option[]>('/api/sys/role/options', {
+  return request('/api/sys/role/options', {
     method: 'GET',
   });
 }

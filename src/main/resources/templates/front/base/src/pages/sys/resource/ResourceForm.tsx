@@ -11,6 +11,7 @@ import {
   updateResourceInfo
 } from "@/services/sys/ResourceController";
 import {ResourceSearchParams} from "@/services/entity/Sys";
+import {getOptionList} from "@/services/sys/DictController";
 
 const ResourceForm = (props: {
   id: any;
@@ -77,13 +78,7 @@ const ResourceForm = (props: {
         name="type"
         label={intl.formatMessage({id: 'pages.common.type'})}
         rules={[{required: true}]}
-        request={async () => {
-          const {data} = await request("/api/chat/system/sys-dict/options", {
-            method: 'GET',
-            params: {parentCode: 'Resource_Type'}
-          });
-          return data;
-        }}
+        request={async () =>  getOptionList('Resource_Type')}
 
       />
       <ProFormDependency name={['type']}>

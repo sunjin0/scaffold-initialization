@@ -9,7 +9,6 @@ import ${packageName}.service.ResourceService;
 import ${packageName2}.entity.Option;
 import ${packageName2}.entity.WebResponse;
 import ${packageName}.entity.Resource;
-import ${packageName2}.enums.State;
 import ${packageName2}.enums.ResourceType;
 import ${packageName2}.exception.ServerException;
 import ${packageName2}.i18n.I18nUtils;
@@ -101,7 +100,7 @@ public class ResourceController {
     @Permission(path = "/sys/resource", type = Permission.Type.Write)
     @GetMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam @NotBlank String id) throws ServerException {
-        List<Resource> list = resourceService.list(Wrappers.lambdaQuery(Resource.class).eq(Resource::getState, State.Success.getCode()));
+        List<Resource> list = resourceService.list(Wrappers.lambdaQuery(Resource.class)));
         Stack<Resource> stack = new Stack<>();
         ArrayList<String> ids = new ArrayList<>();
         ids.add(id);
@@ -117,8 +116,7 @@ public class ResourceController {
                 stack.addAll(children);
             }
         }
-        boolean b = resourceService.update(Wrappers.lambdaUpdate(Resource.class)
-                .set(Resource::getState, State.Delete.getCode())
+        boolean b = resourceService.remove(Wrappers.lambdaUpdate(Resource.class)
                 .in(Resource::getId, ids));
         return WebResponse.OK(I18nUtils.getMessage(b ? "delete.success" : "delete.fail"), true);
     }
@@ -130,7 +128,6 @@ public class ResourceController {
     @GetMapping("/select")
     public WebResponse<List<Option>> select() throws ServerException {
         List<Resource> list = resourceService.list(Wrappers.lambdaQuery(Resource.class)
-                .eq(Resource::getState, State.Success.getCode())
                 .eq(Resource::getType, ResourceType.ROUTE.getCode())
                 .orderByAsc(Resource::getSortNum));
         List<Option> options = list.stream().map(resource -> {

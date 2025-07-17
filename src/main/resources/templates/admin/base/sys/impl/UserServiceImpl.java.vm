@@ -10,7 +10,6 @@ import ${packageName2}.entity.Token;
 import ${packageName2}.entity.BaseEntity;
 import ${packageName2}.msg.entity.Email;
 import ${packageName}.entity.*;
-import ${packageName2}.enums.State;
 import ${packageName2}.enums.EmailType;
 import ${packageName2}.enums.ResourceType;
 import ${packageName2}.exception.ServerException;
@@ -56,7 +55,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private BCryptPasswordEncoder encoder;
-
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Boolean register(UserVo user) throws ServerException {

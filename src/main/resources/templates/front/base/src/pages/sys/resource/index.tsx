@@ -8,7 +8,8 @@ import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
 import {history, useAccess} from "@@/exports";
 import {getOptionList} from "@/services/sys/DictController";
-import {deleteResourceInfo, getResourceList, SearchParams} from "@/services/sys/ResourceController";
+import {deleteResourceInfo, getResourceList} from "@/services/sys/ResourceController";
+import {ResourceSearchParams} from "@/services/entity/Sys";
 
 const Resource: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -97,7 +98,7 @@ const Resource: React.FC = () => {
     <PageContainer>
       <ProTable
         actionRef={ref}
-        request={async (params:SearchParams) => getResourceList(params)}
+        request={async (params:ResourceSearchParams) => getResourceList(params)}
         toolBarRender={() =>write&& [
           <Button
             key="button"
