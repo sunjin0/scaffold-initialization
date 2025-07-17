@@ -3,6 +3,8 @@ package ${packageName}.permission;
 import ${packageName}.exception.ServerException;
 import  ${packageName}.i18n.I18nUtils;
 import ${packageName}.local.CurrentUser;
+import ${packageName}.utils.TokenUtils;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

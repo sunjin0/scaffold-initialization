@@ -12,7 +12,6 @@ import ${packageName}.service.RoleService;
 import ${packageName2}.entity.Option;
 import ${packageName2}.entity.WebResponse;
 import ${packageName}.entity.Role;
-import ${packageName2}.enums.State;
 import ${packageName2}.exception.ServerException;
 import ${packageName2}.i18n.I18nUtils;
 import ${packageName2}.validator.ValidEntity;
@@ -59,7 +58,6 @@ public class RoleController {
     public WebResponse<List<Role>> list(@RequestBody RoleVo role) throws ServerException {
         Page<Role> dictPage = new Page<>(role.getCurrent(), role.getPageSize());
         Wrapper<Role> queryWrapper = Wrappers.lambdaQuery(Role.class)
-                .eq(Role::getState, State.Success.getCode())
                 .like(StringUtils.isNotBlank(role.getName()), Role::getName, role.getName())
                 .like(StringUtils.isNotBlank(role.getDescription()), Role::getDescription, role.getDescription())
                 .orderByDesc(Role::getCreatedAt);
@@ -76,9 +74,9 @@ public class RoleController {
     @GetMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam @NotBlank String id) throws ServerException {
         LambdaUpdateWrapper<Role> updateWrapper = Wrappers.lambdaUpdate(Role.class);
-        updateWrapper.set(Role::getState, State.Delete.getCode())
+        updateWrapper
                 .eq(Role::getId, id);
-        boolean update = roleService.update(updateWrapper);
+        boolean update = roleService.remove(updateWrapper);
         return WebResponse.OK(update ? I18nUtils.getMessage("delete.success") : I18nUtils.getMessage("delete.fail"), true);
     }
 
@@ -127,7 +125,6 @@ public class RoleController {
     public WebResponse<List<Option>> options() throws ServerException {
         List<Option> options = roleService.lambdaQuery()
                 .select(Role::getId, Role::getName)
-                .eq(Role::getState, State.Success.getCode())
                 .list()
                 .stream()
                 .map(role -> new Option(role.getName(), Integer.parseInt(role.getId())))

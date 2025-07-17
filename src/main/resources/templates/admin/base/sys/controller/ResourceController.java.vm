@@ -100,7 +100,7 @@ public class ResourceController {
     @Permission(path = "/sys/resource", type = Permission.Type.Write)
     @GetMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam @NotBlank String id) throws ServerException {
-        List<Resource> list = resourceService.list(Wrappers.lambdaQuery(Resource.class)));
+        List<Resource> list = resourceService.list(Wrappers.lambdaQuery(Resource.class));
         Stack<Resource> stack = new Stack<>();
         ArrayList<String> ids = new ArrayList<>();
         ids.add(id);
@@ -134,7 +134,7 @@ public class ResourceController {
             Option option = new Option();
             String lng = I18nUtils.getMessage("lng");
             option.setLabel(lng.equals("en_US") ? resource.getName() : resource.getNameCn());
-            option.setValue(Integer.parseInt(resource.getId()));
+            option.setValue(resource.getId());
             return option;
         }).collect(Collectors.toList());
         options.add(0, new Option(I18nUtils.getMessage("system.resource.not.parent"), 0));

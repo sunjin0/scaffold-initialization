@@ -9,7 +9,6 @@ import  ${packageName2}.permission.Permission;
 import  ${packageName}.service.UserService;
 import  ${packageName2}.entity.WebResponse;
 import  ${packageName}.entity.User;
-import  ${packageName2}.enums.State;
 import  ${packageName2}.exception.ServerException;
 import  ${packageName2}.i18n.I18nUtils;
 import  ${packageName2}.validator.ValidEntity;
@@ -57,7 +56,6 @@ public class UserController {
     public WebResponse<List<UserVo>> list(@RequestBody UserVo user) throws ServerException {
         Page<User> userPage = new Page<>(user.getCurrent(), user.getPageSize());
         Wrapper<User> queryWrapper = Wrappers.lambdaQuery(User.class)
-                .eq(User::getState, State.Success.getCode())
                 .like(StringUtils.isNotBlank(user.getSex()), User::getSex, user.getSex())
                 .like(StringUtils.isNotBlank(user.getType()), User::getType, user.getType())
                 .like(StringUtils.isNotBlank(user.getUsername()), User::getUsername, user.getUsername())
@@ -140,9 +138,8 @@ public class UserController {
     @Permission(path = "/sys/admin", type = Permission.Type.Write)
     @DeleteMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam @NotBlank String id) throws ServerException {
-        boolean update = userService.update(Wrappers.lambdaUpdate(User.class)
-                .eq(User::getId, id)
-                .set(User::getState, State.Delete.getCode()));
+        boolean update = userService.remove(Wrappers.lambdaUpdate(User.class)
+                .eq(User::getId, id));
         return WebResponse.OK(update ? I18nUtils.getMessage("delete.success") : I18nUtils.getMessage("delete.fail"), update);
     }
 

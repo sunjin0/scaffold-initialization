@@ -20,7 +20,7 @@ public class CodeGenerator {
         FrontScaffoldService.generateFrontScaffold("hy-ui",
                 tableInfos,
                 OUTPUT_DIR,
-                true);
+                false);
         System.out.println("✅ 项目代码生成完成！");
     }
 
