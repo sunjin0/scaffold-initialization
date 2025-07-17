@@ -2,16 +2,18 @@ import React, {useRef, useState} from "react";
 
 import {ActionType, PageContainer, ProTable} from "@ant-design/pro-components";
 import {Button, message, Popconfirm} from "antd";
-import {request, useIntl} from "@umijs/max";
+import {useIntl} from "@umijs/max";
 import RoleForm from "@/pages/sys/role/RoleForm";
 import {PlusOutlined} from "@ant-design/icons";
 import {FormattedMessage, history, useAccess} from "@@/exports";
 import AuthorizationForm from "@/pages/sys/role/AuthorizationForm";
+import {deleteRoleInfo, getRoleList} from "@/services/sys/roleController";
+import {RoleSearchParams} from "@/services/entity/Sys";
 
 const Role: React.FC = () => {
   const intl = useIntl()
   const [open, setOpen] = useState(false)
-  const [authorizationOpen, setAuthorizationOpen]= useState(false)
+  const [authorizationOpen, setAuthorizationOpen] = useState(false)
   const [id, setId] = useState(undefined)
   const ref = useRef<ActionType>()
   const permissionMap = useAccess();
@@ -39,7 +41,7 @@ const Role: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       fixed: 'right',
-      render: (_: any, record: any) =>write&& [
+      render: (_: any, record: any) => write && [
         <Button
           type={'link'}
           key="editable"
@@ -64,7 +66,7 @@ const Role: React.FC = () => {
           key={'delete'}
           title={intl.formatMessage({id: 'pages.confirm.delete'})}
           onConfirm={async () => {
-            const {code, message: msg} = await request('/api/chat/system/sys-role/delete', {params: {id: record.id}});
+            const {code, message: msg} = await deleteRoleInfo(record);
             if (code === 200) {
               message.success(msg)
             } else {
@@ -84,7 +86,7 @@ const Role: React.FC = () => {
   return (
     <PageContainer>
       <ProTable
-        toolBarRender={() =>write&& [
+        toolBarRender={() => write && [
           <Button
             key="button"
             icon={<PlusOutlined/>}
@@ -98,14 +100,11 @@ const Role: React.FC = () => {
           </Button>,
         ]}
         actionRef={ref}
-        request={async (params) => {
-          return await request('/api/chat/system/sys-role/list', {method: 'POST', data: params})
-        }}
+        request={async (params: RoleSearchParams) => getRoleList(params)}
         columns={columns}
         rowKey="id"
       />
       <RoleForm
-        key="role"
         id={id}
         open={open}
         setOpen={setOpen}
@@ -114,10 +113,9 @@ const Role: React.FC = () => {
           ref.current?.reload()
         }}/>
       <AuthorizationForm
-        key="authorization"
         id={id}
         open={authorizationOpen}
-        setOpen={(open)=>{
+        setOpen={(open) => {
           if (!open)
             setId(undefined)
           setAuthorizationOpen(open)

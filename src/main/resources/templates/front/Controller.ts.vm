@@ -22,7 +22,7 @@ export interface ${className} {
  * @since ${now}
  * @returns 查询结果
  */
-export const get${className}List = async (params: SearchParams): Promise<${className}[]> =>{
+export const get${className}List = async (params: SearchParams): Promise<${className}[]> => {
     return await request('/api/${path}/list', {
         method: 'get',
         params: params,
@@ -49,11 +49,10 @@ export const get${className}Info = async (params: SearchParams): Promise<${class
  * @returns 新增结果
  */
 export const add${className}Info = async (params: ${className}) => {
-    let {data} = await request('/api/${path}/add', {
+    return request('/api/${path}/add', {
         method: 'post',
         data: params,
     });
-    return data
 }
 /**
  * 修改${classComment}信息
@@ -62,11 +61,10 @@ export const add${className}Info = async (params: ${className}) => {
  * @returns 修改结果
  */
 export const update${className}Info = async (params: ${className}) => {
-    let {data} = await request('/api/${path}/update', {
+    return request('/api/${path}/update', {
         method: 'post',
         data: params,
     })
-    return data
 }
 /**
  * 删除${classComment}信息
@@ -75,9 +73,8 @@ export const update${className}Info = async (params: ${className}) => {
  * @returns 删除结果
  */
 export const delete${className}Info = async (params: { id: any }) => {
-    let {data} = await request('/api/${path}/delete', {
+    return request('/api/${path}/delete', {
         method: 'get',
         params: params,
     })
-    return data
 }

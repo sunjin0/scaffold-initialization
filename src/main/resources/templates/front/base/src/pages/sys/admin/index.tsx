@@ -1,10 +1,13 @@
 import React, {useRef, useState} from "react";
 
 import {ActionType, PageContainer, ProTable} from "@ant-design/pro-components";
-import {request, useIntl, history} from "@umijs/max";
+import {history, request, useIntl} from "@umijs/max";
 import {Button, Image, message, Popconfirm} from "antd";
 import AdminForm from "@/pages/sys/admin/AdminForm";
 import {useAccess} from "@@/exports";
+import {getOptionList} from "@/services/sys/DictController";
+import {deleteAdminInfo, getAdminList, getRoleOptions} from "@/services/sys/AdminController";
+import {AdminSearchParams} from "@/services/entity/Sys";
 
 const Admin: React.FC = () => {
   const intl = useIntl()
@@ -19,10 +22,7 @@ const Admin: React.FC = () => {
       title: intl.formatMessage({id: 'pages.sys.role.name'}),
       dataIndex: 'roleIds',
       valueType: 'select',
-      request: async () => {
-        const {data} = await request('/api/chat/system/sys-role/options', {});
-        return data;
-      },
+      request: async () => getRoleOptions(),
       fieldProps: {
         mode: 'multiple'
       },
@@ -38,13 +38,7 @@ const Admin: React.FC = () => {
       title: intl.formatMessage({id: 'pages.common.gender'}),
       dataIndex: 'sex',
       valueType: 'select',
-      request: async () => {
-        const {data} = await request('/api/chat/system/sys-dict/options', {
-          method: 'GET',
-          params: {parentCode: 'Gender_Type'}
-        });
-        return data;
-      },
+      request: async () => getOptionList("Gender_Type"),
       key: 'sex',
     },
     {
@@ -59,13 +53,7 @@ const Admin: React.FC = () => {
       title: intl.formatMessage({id: 'pages.common.type'}),
       dataIndex: 'type',
       valueType: 'select',
-      request: async () => {
-        const {data} = await request('/api/chat/system/sys-dict/options', {
-          method: 'GET',
-          params: {parentCode: 'System_Role'}
-        });
-        return data;
-      },
+      request: async () =>getOptionList("System_Role"),
       key: 'type',
     },
     {
@@ -98,10 +86,7 @@ const Admin: React.FC = () => {
           key={'delete'}
           title={intl.formatMessage({id: 'pages.confirm.delete'})}
           onConfirm={async () => {
-            const {code, message: msg} = await request('/api/chat/system/sys-admin/delete', {
-              method: 'GET',
-              params: {id: record.id}
-            });
+            const {code, message: msg} = await deleteAdminInfo(record);
             if (code === 200) {
               message.success(msg)
             } else {
@@ -124,7 +109,7 @@ const Admin: React.FC = () => {
         actionRef={ref}
         rowKey={'user'}
         columns={columns}
-        request={async (params) => request('/api/chat/system/sys-admin/list', {method: 'POST', data: params})}
+        request={async (params: AdminSearchParams) => getAdminList(params)}
       />
       <AdminForm
         id={id}

@@ -1,8 +1,9 @@
-import React, { useState} from "react";
+import React from "react";
 import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
-import {Form, message} from "antd";
+import {Form} from "antd";
 import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {addDictInfo, getDictInfo, updateDictInfo} from "@/services/sys/DictController";
 
 const DictForm = (props: {
   id: any;
@@ -15,26 +16,18 @@ const DictForm = (props: {
   const intl = useIntl()
   return (
     <DrawerForm
-      request={async (params) => await request('/api/chat/system/sys-dict/info', {
-        method: 'GET',
-        params: {id: params}
-      })}
+      request={async (params) => getDictInfo(params)}
       id={id}
       open={open}
       setOpen={setOpen}
       onSuccess={async (values: any) => {
-        const {code, message: msg} = await request('/api/chat/system/sys-dict/save', {
-          method: 'POST',
-          data: values
-        });
-        onSuccess();
-        if (code === 200) {
-          message.success(msg)
-          return true;
+        if (id) {
+          await updateDictInfo(values);
         } else {
-          message.error(msg)
-          return false
+          await addDictInfo(values);
         }
+        onSuccess();
+        return true;
       }}
       form={form}
     >

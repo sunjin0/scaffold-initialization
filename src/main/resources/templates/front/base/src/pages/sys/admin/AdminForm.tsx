@@ -1,7 +1,8 @@
 import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
-import {Form, message} from "antd";
+import {Form} from "antd";
 import {ProFormSelect, ProFormText} from "@ant-design/pro-components";
+import {addAdminInfo, getAdminInfo, updateAdminInfo} from "@/services/sys/AdminController";
 
 const AdminForm = (props: {
   id: any;
@@ -17,23 +18,18 @@ const AdminForm = (props: {
       open={open}
       setOpen={setOpen}
       id={id}
-      request={async (params) => await request('/api/chat/system/sys-admin/info', {params: {id: params}})}
+      request={async (params) => getAdminInfo(params)}
       onSuccess={async (values) => {
-        if(!values.avatar){
+        if (!values.avatar) {
           values.avatar = 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
         }
-        const {code, message: msg} = await request('/api/chat/system/sys-admin/save', {
-          method: 'POST',
-          data: values
-        });
-        onSuccess();
-        if (code === 200) {
-          message.success(msg)
-          return true;
+        if (id) {
+          await updateAdminInfo(values)
         } else {
-          message.error(msg)
-          return false
+          await addAdminInfo(values)
         }
+        onSuccess();
+        return true;
       }}
       form={form}
     >

@@ -7,6 +7,8 @@ import ResourceForm from "@/pages/sys/resource/ResourceForm";
 import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
 import {history, useAccess} from "@@/exports";
+import {getOptionList} from "@/services/sys/DictController";
+import {deleteResourceInfo, getResourceList, SearchParams} from "@/services/sys/ResourceController";
 
 const Resource: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -38,10 +40,7 @@ const Resource: React.FC = () => {
       title: intl.formatMessage({id: 'pages.common.type'}),
       dataIndex: 'type',
       valueType: 'select',
-      request: async () => {
-        const {data} = await request("/api/chat/system/sys-dict/options", {method: 'GET', params: {parentCode: 'Resource_Type'}});
-        return data;
-      },
+      request: async () => getOptionList("Resource_Type"),
       key: 'type',
     },
     {
@@ -77,10 +76,7 @@ const Resource: React.FC = () => {
           key={'delete'}
           title={intl.formatMessage({id: 'pages.confirm.delete'})}
           onConfirm={async () => {
-            const {code, message: msg} = await request('/api/chat/system/sys-resource/delete', {
-              method: 'GET',
-              params: {id: record.id}
-            });
+            const {code, message: msg} = await deleteResourceInfo(record);
             action?.reload()
             if (code === 200) {
               message.success(msg)
@@ -101,9 +97,7 @@ const Resource: React.FC = () => {
     <PageContainer>
       <ProTable
         actionRef={ref}
-        request={async (params) => {
-          return await request('/api/chat/system/sys-resource/list', {method: 'POST', data: params})
-        }}
+        request={async (params:SearchParams) => getResourceList(params)}
         toolBarRender={() =>write&& [
           <Button
             key="button"

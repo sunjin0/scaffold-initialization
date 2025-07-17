@@ -4,6 +4,13 @@ import {request, useIntl} from "@umijs/max";
 import {Form, message} from "antd";
 import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {ProFormDependency} from "@ant-design/pro-form";
+import {
+  addResourceInfo,
+  getResourceInfo,
+  getResourceOptions,
+  updateResourceInfo
+} from "@/services/sys/ResourceController";
+import {ResourceSearchParams} from "@/services/entity/Sys";
 
 const ResourceForm = (props: {
   id: any;
@@ -19,11 +26,8 @@ const ResourceForm = (props: {
     <DrawerForm
       readonly={readOnly}
       id={id}
-      request={async (params) => {
-        const res = await request('/api/chat/system/sys-resource/info', {
-          method: 'GET',
-          params: {id: params}
-        });
+      request={async (params:ResourceSearchParams) => {
+        const res = await getResourceInfo(params);
         if (res.data.type !== 'Resource_Type_Route') {
           setReadOnly(true)
         }
@@ -39,18 +43,13 @@ const ResourceForm = (props: {
         }
       }}
       onSuccess={async (values: any) => {
-        const {code, message: msg} = await request('/api/chat/system/sys-resource/save', {
-          method: 'POST',
-          data: values
-        });
-        onSuccess();
-        if (code === 200) {
-          message.success(msg)
-          return true;
-        } else {
-          message.error(msg)
-          return false
+        if (id){
+          await updateResourceInfo(values);
+        }else{
+          await addResourceInfo(values);
         }
+        onSuccess();
+        return true;
       }}
       form={form}
     >
@@ -62,10 +61,7 @@ const ResourceForm = (props: {
         name="parentId"
         label={intl.formatMessage({id: 'pages.sys.resource.menu.parent'})}
         showSearch={true}
-        request={async () => {
-          const {data} = await request('/api/chat/system/sys-resource/select', {});
-          return data;
-        }}
+        request={async () => getResourceOptions()}
       />
       <ProFormText
         name="name"

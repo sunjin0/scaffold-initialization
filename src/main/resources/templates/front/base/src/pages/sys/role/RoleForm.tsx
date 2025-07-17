@@ -1,8 +1,10 @@
-import React, { useState} from "react";
+import React from "react";
 import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
-import {Form, message} from "antd";
-import { ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {Form} from "antd";
+import {ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {addRoleInfo, getRoleInfo, updateRoleInfo} from "@/services/sys/roleController";
+import {RoleSearchParams} from "@/services/entity/Sys";
 
 const RoleForm = (props: {
   id: any;
@@ -15,26 +17,18 @@ const RoleForm = (props: {
   const intl = useIntl()
   return (
     <DrawerForm
-      request={async (params) => await request('/api/chat/system/sys-role/info', {
-        method: 'GET',
-        params: {id: params}
-      })}
+      request={async (params:RoleSearchParams) =>  getRoleInfo(params) }
       id={id}
       open={open}
       setOpen={setOpen}
       onSuccess={async (values: any) => {
-        const {code, message: msg} = await request('/api/chat/system/sys-role/save', {
-          method: 'POST',
-          data: values
-        });
-        onSuccess();
-        if (code === 200) {
-          message.success(msg)
-          return true;
+        if (id) {
+          await updateRoleInfo(values);
         } else {
-          message.error(msg)
-          return false
+          await addRoleInfo(values);
         }
+        onSuccess();
+        return true;
       }}
       form={form}
     >

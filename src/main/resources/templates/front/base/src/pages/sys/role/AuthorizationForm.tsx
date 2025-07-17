@@ -1,8 +1,10 @@
 import {ProForm} from "@ant-design/pro-components";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import DrawerForm from "@/components/DrawerForm";
 import {Form, message, Tree} from "antd";
-import {request, useIntl} from "@umijs/max";
+import {useIntl} from "@umijs/max";
+import {getResourceList, getRoleAuthorization, saveRoleAuthorization} from "@/services/sys/roleController";
+
 
 const removeParentSelected = (resources: Array<any>, checkedResources: Array<string>,
                               halfCheckedResources: Array<string>) => {
@@ -30,42 +32,34 @@ const AuthorizationForm = (props: {
   const [resourceIds, setResourceIds] = useState<any[]>([])
   const [checkedKeys, setCheckedKeys] = useState<any[]>([])
   const [halfCheckedKeys, setHalfCheckedKeys] = useState<any[]>([])
-  useEffect(() => {
-    if (id) {
-      Promise.all([request('/api/chat/system/sys-role/resource'),
-        request('/api/chat/system/sys-role-resource/permission', {
-          params: {roleId: id}
-        })
-      ]).then(([res1, res2]) => {
-        const halfCheckedResources: Array<string> = [];
-        setResourceIds(res1.data)
-        removeParentSelected(res1.data, res2.data, halfCheckedResources)
-        setCheckedKeys(res2.data)
-        setHalfCheckedKeys(halfCheckedResources)
-      })
-
-
-    } else {
-      request('/api/chat/system/sys-role/resource').then((res) => {
-        setResourceIds(res.data)
-      })
-    }
-  }, [id]);
   return (
     <DrawerForm
       open={open}
       setOpen={setOpen}
       id={id}
-      request={async () => {
+      request={async (params) => {
+        if (params?.id) {
+          Promise.all([getResourceList(), getRoleAuthorization({id})])
+            .then(([res1, res2]) => {
+              const halfCheckedResources: Array<string> = [];
+              setResourceIds(res1.data)
+              removeParentSelected(res1.data, res2.data, halfCheckedResources)
+              setCheckedKeys(res2.data)
+              setHalfCheckedKeys(halfCheckedResources)
+            })
+
+
+        } else {
+          getResourceList().then((res) => {
+            setResourceIds(res.data)
+          })
+        }
       }}
       onSuccess={async () => {
-        const {code, message: msg} = await request('/api/chat/system/sys-role-resource/save', {
-          method: 'POST',
-          data: {
-            roleId: id,
-            resourceIds: [...checkedKeys, ...halfCheckedKeys]
-          }
-        });
+        const {code, message: msg} = await saveRoleAuthorization({
+          id,
+          resourceIds: [...checkedKeys, ...halfCheckedKeys]
+        })
         if (code !== 200) {
           message.error(msg)
           return false

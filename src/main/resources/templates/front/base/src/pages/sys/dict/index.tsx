@@ -7,6 +7,8 @@ import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
 import DictForm from "@/pages/sys/dict/DictForm";
 import {history, useAccess} from "@@/exports";
+import {DictSearchParams} from "@/services/entity/Sys";
+import {deleteDictInfo, getDictList} from "@/services/sys/DictController";
 
 const Dict: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -68,10 +70,7 @@ const Dict: React.FC = () => {
           key={'delete'}
           title={intl.formatMessage({id: 'pages.confirm.delete'})}
           onConfirm={async () => {
-            const {code, message: msg} = await request('/api/chat/system/sys-dict/delete', {
-              method: 'GET',
-              params: {id: record.id}
-            });
+            const {code, message:msg} = await deleteDictInfo(record);
             action?.reload()
             if (code === 200) {
               message.success(msg)
@@ -92,9 +91,7 @@ const Dict: React.FC = () => {
     <PageContainer>
       <ProTable
         actionRef={ref}
-        request={async (params) => {
-          return await request('/api/chat/system/sys-dict/list', {method: 'POST', data: params})
-        }}
+        request={async (params:DictSearchParams) => getDictList(params)}
         toolBarRender={() => write&&[
           <Button
             key="button"

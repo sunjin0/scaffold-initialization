@@ -2,24 +2,9 @@
 import type {RequestConfig} from '@umijs/max';
 import {message, notification} from 'antd';
 import {getLocale} from "@@/exports";
+import {ErrorShowType, ResponseStructure} from "@/services/entity/Common";
 
-// 错误处理方案： 错误类型
-enum ErrorShowType {
-  SILENT = 0,
-  WARN_MESSAGE = 1,
-  ERROR_MESSAGE = 2,
-  NOTIFICATION = 3,
-  REDIRECT = 9,
-}
 
-// 与后端约定的响应数据格式
-interface ResponseStructure {
-  success: boolean;
-  data: any;
-  errorCode?: number;
-  errorMessage?: string;
-  showType?: ErrorShowType;
-}
 
 /**
  * @name 错误处理
@@ -32,7 +17,7 @@ export const errorConfig: RequestConfig = {
     // 错误抛出
     errorThrower: (res) => {
       const {success, data, errorCode, errorMessage, showType} =
-        res as unknown as ResponseStructure;
+        res as unknown as ResponseStructure<any>;
       if (!success) {
         const error: any = new Error(errorMessage);
         error.name = 'BizError';
@@ -45,7 +30,7 @@ export const errorConfig: RequestConfig = {
       if (opts?.skipErrorHandler) throw error;
       // 我们的 errorThrower 抛出的错误。
       if (error.name === 'BizError') {
-        const errorInfo: ResponseStructure | undefined = error.info;
+        const errorInfo: ResponseStructure<any> | undefined = error.info;
         if (errorInfo) {
           const {errorMessage, errorCode} = errorInfo;
           switch (errorInfo.showType) {
@@ -119,9 +104,9 @@ export const errorConfig: RequestConfig = {
 
   // 响应拦截器
   responseInterceptors: [
-    (response) => {
+    (response: ResponseStructure<any>) => {
       // 拦截响应数据，进行个性化处理
-      const {data} = response as unknown as ResponseStructure;
+      const {data} = response;
       data.success = data.code === 200
       if (data?.success === false) {
         data.errorMessage = data.message
