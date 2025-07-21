@@ -2,7 +2,8 @@ import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
 import {Form} from "antd";
 import {ProFormSelect, ProFormText} from "@ant-design/pro-components";
-import {addAdminInfo, getAdminInfo, updateAdminInfo} from "@/services/sys/AdminController";
+import {addAdminInfo, getAdminInfo, getRoleOptions, updateAdminInfo} from "@/services/sys/AdminController";
+import {getOptionList} from "@/services/sys/DictController";
 
 const AdminForm = (props: {
   id: any;
@@ -41,12 +42,7 @@ const AdminForm = (props: {
         name={'roleIds'}
         label={intl.formatMessage({id: 'pages.sys.role.name'})}
         rules={[{required: true}]}
-        request={async () => {
-          const {data} = await request("/api/chat/system/sys-role/options", {
-            method: 'GET',
-          });
-          return data
-        }}
+        request={async () => getRoleOptions()}
         fieldProps={{
           mode: 'multiple'
         }}
@@ -60,25 +56,13 @@ const AdminForm = (props: {
         name={'sex'}
         label={intl.formatMessage({id: 'pages.common.gender'})}
         rules={[{required: true}]}
-        request={async () => {
-          const {data} = await request('/api/chat/system/sys-dict/options', {
-            method: 'GET',
-            params: {parentCode: 'Gender_Type'}
-          });
-          return data;
-        }}
+        request={async () => getOptionList("Gender_Type")}
       />
       <ProFormSelect
         name={'type'}
         label={intl.formatMessage({id: 'pages.common.type'})}
         rules={[{required: true}]}
-        request={async () => {
-          const {data} = await request('/api/chat/system/sys-dict/options', {
-            method: 'GET',
-            params: {parentCode: 'System_Role'}
-          });
-          return data;
-        }}
+        request={async () => getOptionList("System_Role")}
       />
       <ProFormText
         name={'email'}

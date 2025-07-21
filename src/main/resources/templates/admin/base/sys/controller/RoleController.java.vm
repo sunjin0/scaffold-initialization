@@ -139,6 +139,7 @@ public class RoleController {
     @GetMapping("/resource")
     public WebResponse<List<ResourceVo>> resource() throws ServerException {
         ResourceVo resourceVo = new ResourceVo();
+        resourceVo.setCurrent(1L);
         resourceVo.setPageSize(100000L);
         Page<ResourceVo> list = resourceService.list(resourceVo);
         return WebResponse.OK(list.getRecords());

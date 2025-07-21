@@ -49,10 +49,19 @@ export const updateDictInfo = async (params: Dict): Promise<ResponseStructure<Di
 export const deleteDictInfo = async (params: DictSearchParams): Promise<ResponseStructure<Dict>> => {
   return request('/api/sys/dict/delete', {
     method: 'GET',
-    params,
+    params:{id: params.id},
   });
 }
-
+/**
+ * @description 获取字典下拉列表
+ * @since 2025-07-21
+ */
+export const getSelectList = async (): Promise<Option[]> => {
+  const {data} = await request('/api/sys/dict/select', {
+    method: 'GET',
+  });
+  return data;
+}
 /**
  * @description 字典
  * @since 2025-07-17

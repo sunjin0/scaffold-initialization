@@ -38,22 +38,21 @@ const AuthorizationForm = (props: {
       setOpen={setOpen}
       id={id}
       request={async (params) => {
-        if (params?.id) {
-          Promise.all([getResourceList(), getRoleAuthorization({id})])
-            .then(([res1, res2]) => {
-              const halfCheckedResources: Array<string> = [];
-              setResourceIds(res1.data)
-              removeParentSelected(res1.data, res2.data, halfCheckedResources)
-              setCheckedKeys(res2.data)
-              setHalfCheckedKeys(halfCheckedResources)
-            })
-
-
-        } else {
-          getResourceList().then((res) => {
-            setResourceIds(res.data)
-          })
+        const info = async () => {
+          const resourceList = await getResourceList();
+          let resources = resourceList.data;
+          if (id) {
+            const promise = await getRoleAuthorization({id});
+            const halfCheckedResources: Array<string> = [];
+            setResourceIds(resources)
+            removeParentSelected(resources, promise.data, halfCheckedResources)
+            setCheckedKeys(promise.data)
+            setHalfCheckedKeys(halfCheckedResources)
+          } else {
+            setResourceIds(resources)
+          }
         }
+        await info()
       }}
       onSuccess={async () => {
         const {code, message: msg} = await saveRoleAuthorization({

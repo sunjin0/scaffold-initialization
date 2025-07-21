@@ -59,7 +59,8 @@ export const deleteAdminInfo = async (params: AdminSearchParams): Promise<Respon
  * @since 2025-07-17
  */
 export const getRoleOptions = async (): Promise<Option[]> =>{
-  return request('/api/sys/role/options', {
+  const {data} = await request('/api/sys/role/options', {
     method: 'GET',
   });
+  return data;
 }

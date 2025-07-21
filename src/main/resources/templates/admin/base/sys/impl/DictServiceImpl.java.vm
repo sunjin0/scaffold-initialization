@@ -122,8 +122,10 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         DictVo vo = new DictVo();
         vo.setId(id);
         ArrayList<String> ids = new ArrayList<>();
+        vo.setCurrent(1L);
+        vo.setPageSize(9999L);
         Page<DictVo> list = list(vo);
-        if (!list.getRecords().isEmpty() && list.getRecords().size() == 1) {
+        if (list.getRecords().size() == 1) {
             Stack<DictVo> stack = new Stack<>();
             stack.push(list.getRecords().get(0));
             while (!stack.isEmpty()) {
@@ -134,8 +136,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 }
             }
         }
-        return update(Wrappers.lambdaUpdate(Dict.class)
-                .in(Dict::getId, ids));
+        return super.removeByIds(ids);
     }
 
     @Override

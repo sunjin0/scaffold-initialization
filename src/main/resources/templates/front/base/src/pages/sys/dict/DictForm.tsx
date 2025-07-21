@@ -3,7 +3,7 @@ import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
 import {Form} from "antd";
 import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import {addDictInfo, getDictInfo, updateDictInfo} from "@/services/sys/DictController";
+import {addDictInfo, getDictInfo, getSelectList, updateDictInfo} from "@/services/sys/DictController";
 
 const DictForm = (props: {
   id: any;
@@ -39,12 +39,7 @@ const DictForm = (props: {
         name="parent"
         label={intl.formatMessage({id: 'pages.sys.resource.menu.parent'})}
         showSearch={true}
-        request={async () => {
-          const {data} = await request('/api/chat/system/sys-dict/select', {
-            params: {}
-          });
-          return data;
-        }}
+        request={async () => getSelectList}
       />
       <ProFormText
         name="code"

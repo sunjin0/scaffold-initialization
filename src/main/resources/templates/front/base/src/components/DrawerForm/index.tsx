@@ -11,19 +11,20 @@ export default (props: Props) => {
   const {id, onSuccess, open, setOpen, children, form, request,readonly} = props;
   const [loading, setLoading] = useState(false);
   const intl = useIntl()
-  useEffect(() => {
-    form.setFieldsValue({})
-    if (id) {
-      request(id).then(res => {
-        if (res) {
-          form.setFieldsValue(res.data)
-        }
-      })
-    }
-  }, [id,request]);
   return (
     <DrawerForm
-      params={id}
+      params={id ? id : undefined}
+      request={async (params: any) => {
+        if (!params)
+          return {
+            data: {},
+            success: true,
+            code: 200
+          };
+        const res = await request(params);
+        form.setFieldsValue(res.data)
+        return res
+      }}
       loading={loading}
       open={open}
       readonly={readonly}

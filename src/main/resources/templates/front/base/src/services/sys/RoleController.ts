@@ -67,7 +67,7 @@ export const getResourceList = async () => {
  * @since 2025-07-17
  */
 export const getRoleAuthorization = async (params: RoleSearchParams) => {
-  return request(`/api/sys/role/permission`, {
+  return request(`/api/sys/role-resource/permission`, {
     method: 'GET',
     params:{
       roleId: params.id
