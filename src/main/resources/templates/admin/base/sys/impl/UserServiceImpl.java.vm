@@ -191,6 +191,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setRefreshToken(token.getRefreshToken());
         tokenService.saveOrUpdate(token, Wrappers.lambdaUpdate(Token.class)
                 .eq(Token::getUserId, user.getId()));
+        HashMap<String, String> map = CurrentUser.getUser();
+        map.put("userId", one.getId());
+        map.put("token", token.getToken());
         redisTemplate.opsForHash().put(TokenUtils.TOKEN_KEY, one.getId(), this.getPermissionMap(token.getToken()));
 
         return user;
@@ -357,6 +360,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public boolean logout() {
+        HashOperations<String, Object, Object> operations = redisTemplate.opsForHash();
+        String id = CurrentUser.getUser().get("userId");
+        operations.delete(TokenUtils.TOKEN_KEY, id);
         return tokenService.remove(Wrappers.<Token>lambdaUpdate()
                 .eq(Token::getUserId, CurrentUser.getUser().get("userId")));
     }
