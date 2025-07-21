@@ -58,8 +58,8 @@ public class PermissionAop {
             return;
 
         HashMap<String, String> user = CurrentUser.getUser();
-        if (user == null) {
-            throw new ServerException(401, I18nUtils.getMessage("auth.error.no.login"));
+        if (user == null|| user.get("userId") == null) {
+            throw new ServerException(401, I18nUtils.getMessage("auth.error.no.permission"));
         }
         String userId = user.get("userId");
         HashOperations<String, Object, Object> operations = redisTemplate.opsForHash();

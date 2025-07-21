@@ -7,6 +7,7 @@ import {stringify} from 'querystring';
 import React from 'react';
 import {flushSync} from 'react-dom';
 import HeaderDropdown from '../HeaderDropdown';
+import {logout} from "@/services/sys/LoginController";
 
 export type GlobalHeaderRightProps = {
   menu?: boolean;
@@ -56,7 +57,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu, children
       });
     }
     try {
-      const {message: msg} = await request("/api/chat/system/logout");
+      const {message: msg} = await logout();
       message.success(msg)
     } catch (e) {
     } finally {

@@ -14,6 +14,7 @@ import {useState} from 'react';
 import {request, useIntl, history, useModel} from "@umijs/max";
 import {Header} from "antd/es/layout/layout";
 import {Footer, SelectLang} from "@/components";
+import {login, verify} from "@/services/sys/LoginController";
 
 
 export default () => {
@@ -38,10 +39,7 @@ export default () => {
           onFinish={async (values) => {
             if (verity) {
               // 登录
-              let {data, message: msg} = await request('/api/sys/login', {
-                data: values,
-                method: 'POST',
-              });
+              let {data, message: msg} = await login(values);
               localStorage.setItem('token', data.token);
               localStorage.setItem('refreshToken', data.refreshToken)
               message.success(msg)
@@ -56,10 +54,7 @@ export default () => {
               return true
             } else {
               // 验证账号密码
-              let {data, message: msg} = await request('/api/sys/verify', {
-                data: values,
-                method: 'POST',
-              });
+              let {data, message: msg} = await verify(values);
               message.success(msg)
               setVerity(data as boolean)
             }

@@ -7,6 +7,7 @@ import {history, Link, request as request2} from '@umijs/max';
 import React from 'react';
 import defaultSettings from '../config/defaultSettings';
 import {errorConfig} from './requestErrorConfig';
+import {getRoutes, info} from "@/services/sys/LoginController";
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/login';
@@ -28,7 +29,7 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      let {data} = await request2('/api/sys/info');
+      let {data} = await info();
       return data
     } catch (error) {
       history.push(loginPath);
@@ -72,7 +73,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
         id: initialState?.currentUser?.id
       },
       request: async () => {
-        const {data} = await request2('/api/sys/getRouters');
+        const {data} = await getRoutes();
         data.forEach((item: any) => {
           item.icon = iconMap[item.icon]
         })

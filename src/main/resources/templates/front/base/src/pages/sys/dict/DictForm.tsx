@@ -39,7 +39,7 @@ const DictForm = (props: {
         name="parent"
         label={intl.formatMessage({id: 'pages.sys.resource.menu.parent'})}
         showSearch={true}
-        request={async () => getSelectList}
+        request={async () => getSelectList()}
       />
       <ProFormText
         name="code"

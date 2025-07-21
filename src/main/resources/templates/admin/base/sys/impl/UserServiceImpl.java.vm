@@ -257,7 +257,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             Queue<ResourceVo> queue = new LinkedList<>(list);
             while (!queue.isEmpty()) {
                 ResourceVo poll = queue.poll();
-                ResourceVo parent = map.get(poll.getParentId());
+                ResourceVo parent = map.get(poll.getParentId().toString());
                 if (parent != null) {
                     if (parent.getChildren() == null) {
                         parent.setChildren(new ArrayList<>());

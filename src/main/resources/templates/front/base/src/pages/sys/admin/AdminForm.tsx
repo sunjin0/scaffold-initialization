@@ -74,6 +74,12 @@ const AdminForm = (props: {
         label={intl.formatMessage({id: 'pages.common.phone'})}
         rules={[{required: true}]}
       />
+      <ProFormText.Password
+        required={!id}
+        name={'password'}
+        label={intl.formatMessage({id: 'pages.common.password'})}
+        rules={[{required: !id, min: 6, max: 10}]}
+      />
     </DrawerForm>);
 };
 export default AdminForm;
