@@ -29,6 +29,6 @@ public class RoleResourceServiceImpl extends ServiceImpl<RoleResourceMapper, Rol
         query.select(RoleResource::getResourceId)
                 .eq(RoleResource::getRoleId, roleId);
         List<RoleResource> list = list(query);
-        return list.stream().map(resource -> resource.getResourceId().toString()).collect(Collectors.toList());
+        return list.stream().map(RoleResource::getResourceId).collect(Collectors.toList());
     }
 }

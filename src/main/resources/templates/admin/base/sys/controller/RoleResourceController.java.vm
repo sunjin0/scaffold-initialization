@@ -64,8 +64,8 @@ public class RoleResourceController {
             }
             // 添加角色资源
             RoleResourceVo roleResource = new RoleResourceVo();
-            roleResource.setRoleId(roleResource.getRoleId());
-            roleResource.setResourceId(Integer.valueOf(resourceId));
+            roleResource.setRoleId(roleResourceVo.getRoleId());
+            roleResource.setResourceId(resourceId);
             return roleResource;
         }).collect(Collectors.toList());
         boolean result = roleResourceService.saveBatch(roleResourceList);

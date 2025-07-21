@@ -30,12 +30,12 @@ public class RoleResource extends BaseEntity {
     /**
      * 角色id
      */
-    private Integer roleId;
+    private String roleId;
 
     /**
      * 资源id
      */
-    private Integer resourceId;
+    private String resourceId;
 
 
 }

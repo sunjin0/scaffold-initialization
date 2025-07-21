@@ -38,7 +38,7 @@ public class UserVo extends User {
     /**
      * 角色 ID
      */
-    private List<Integer> roleIds;
+    private List<String> roleIds;
 
 
     /**

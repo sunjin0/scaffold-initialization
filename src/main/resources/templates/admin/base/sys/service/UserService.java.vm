@@ -24,11 +24,11 @@ import java.util.List;
 public interface UserService extends IService<User> {
 
     /**
-     * 注册
-     *
-     * @param user  用户
-     * @return {@link Boolean }
-     */
+       * 注册
+       *
+       * @param user  用户
+       * @return {@link Boolean }
+       */
     @ApiOperation("注册")
     @ApiImplicitParams(
             {
@@ -101,7 +101,7 @@ public interface UserService extends IService<User> {
             @ApiImplicitParam(name = "Authorization", value = "访问令牌", required = true, dataType = "string", paramType = "header")
     })
     @GetMapping(value = "/roleIds")
-    List<Integer> getRoleIdsByUserId(String userId);
+    List<String> getRoleIdsByUserId(String userId);
 
     /**
      * 绑定角色
@@ -119,7 +119,7 @@ public interface UserService extends IService<User> {
             }
     )
     @PostMapping(value = "/bindRole")
-    Boolean bindRole(String userId, List<Integer> roleIds);
+    Boolean bindRole(String userId, List<String> roleIds);
 
     /**
      * 获取路由器

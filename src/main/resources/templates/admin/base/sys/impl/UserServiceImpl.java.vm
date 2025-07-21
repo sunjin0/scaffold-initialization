@@ -183,7 +183,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtils.copyProperties(one, user);
         //生成token
         HashMap<String, String> payload = new HashMap<>();
-        payload.put("userId", user.getId());
+        payload.put("userId", String.valueOf(user.getId()));
         //角色
         payload.put("role", one.getType());
         Token token = TokenUtils.createToken(payload);
@@ -198,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public List<Integer> getRoleIdsByUserId(String userId) {
+    public List<String> getRoleIdsByUserId(String userId) {
         List<UserRole> list = userRoleService.list(Wrappers.<UserRole>lambdaQuery()
                 .select(UserRole::getRoleId)
                 .eq(UserRole::getUserId, userId));
@@ -209,7 +209,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Boolean bindRole(String userId, List<Integer> roleIds) {
+    public Boolean bindRole(String userId, List<String> roleIds) {
         return userRoleService.saveUserRoleIds(userId, roleIds);
     }
 
@@ -227,7 +227,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return routes;
             }
             // 2.获取角色对应的资源
-            List<Integer> roleIds = roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+            List<String> roleIds = roles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
             List<RoleResource> resources = roleResourceService.list(Wrappers.<RoleResource>lambdaQuery()
                     .select(RoleResource::getResourceId)
                     .in(RoleResource::getRoleId, roleIds)
@@ -236,7 +236,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return routes;
             }
             // 3.获取资源
-            Set<Integer> resourceIds = resources.stream().map(RoleResource::getResourceId).collect(Collectors.toSet());
+            Set<String> resourceIds = resources.stream().map(RoleResource::getResourceId).collect(Collectors.toSet());
             List<ResourceVo> list = resourceService.list(Wrappers.lambdaQuery(com.hy.sys.entity.Resource.class)
                     .in(com.hy.sys.entity.Resource::getId, resourceIds)
                     .orderByAsc(com.hy.sys.entity.Resource::getSortNum)).stream().map(v -> {
@@ -257,7 +257,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             Queue<ResourceVo> queue = new LinkedList<>(list);
             while (!queue.isEmpty()) {
                 ResourceVo poll = queue.poll();
-                ResourceVo parent = map.get(poll.getParentId().toString());
+                ResourceVo parent = map.get(poll.getParentId());
                 if (parent != null) {
                     if (parent.getChildren() == null) {
                         parent.setChildren(new ArrayList<>());

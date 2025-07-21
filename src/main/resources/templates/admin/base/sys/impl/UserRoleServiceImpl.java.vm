@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements UserRoleService {
 
     @Override
-    public boolean saveUserRoleIds(String userId, List<Integer> roleIds) {
+    public boolean saveUserRoleIds(String userId, List<String> roleIds) {
         // 删除该用户所有角色
         super.remove(Wrappers.lambdaQuery(UserRole.class).eq(UserRole::getUserId, userId));
         // 添加角色资源
         List<UserRole> userRoles = roleIds.stream().map(roleId -> {
             UserRole userRole = new UserRole();
-            userRole.setUserId(Integer.parseInt(userId));
+            userRole.setUserId(userId);
             userRole.setRoleId(roleId);
             return userRole;
         }).collect(Collectors.toList());

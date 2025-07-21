@@ -23,5 +23,5 @@ public interface UserRoleService extends IService<UserRole> {
      * @param roleIds 角色 ID
      * @return boolean
      */
-    boolean saveUserRoleIds(String userId, List<Integer> roleIds);
+    boolean saveUserRoleIds(String userId, List<String> roleIds);
 }

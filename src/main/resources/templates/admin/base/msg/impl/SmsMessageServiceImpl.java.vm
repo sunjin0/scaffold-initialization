@@ -47,10 +47,7 @@ public class SmsMessageServiceImpl extends ServiceImpl<SmsMessageMapper, Sms> im
 
     @Override
     public Boolean delete(String id) throws ServerException {
-        Sms Sms = new Sms();
-        Sms.setId(id);
-        Sms.setState(State.Delete.getCode());
-        return updateById(Sms);
+        return removeById(id);
     }
 
     @Override
@@ -66,7 +63,6 @@ public class SmsMessageServiceImpl extends ServiceImpl<SmsMessageMapper, Sms> im
     @Override
     public Sms getByUserId(String userId) throws ServerException {
         return getOne(Wrappers.lambdaQuery(Sms.class)
-                .eq(Sms::getUserId, userId)
-                .eq(Sms::getState, State.Success.getCode()));
+                .eq(Sms::getUserId, userId));
     }
 }

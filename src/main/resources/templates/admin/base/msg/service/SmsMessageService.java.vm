@@ -37,7 +37,7 @@ public interface SmsMessageService extends IService<Sms> {
     /**
      * 按 ID 获取
      *
-     * @param id
+      * @param id ID
      * @return {@link Sms }
      * @throws ServerException 服务器异常
      */
@@ -67,7 +67,7 @@ public interface SmsMessageService extends IService<Sms> {
     /**
      * 删除
      *
-     * @param id 身份证
+      * @param id ID
      * @return {@link Boolean }
      * @throws ServerException 服务器异常
      */

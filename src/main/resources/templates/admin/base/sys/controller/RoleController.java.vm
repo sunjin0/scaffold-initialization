@@ -127,7 +127,7 @@ public class RoleController {
                 .select(Role::getId, Role::getName)
                 .list()
                 .stream()
-                .map(role -> new Option(role.getName(), Integer.parseInt(role.getId())))
+                .map(role -> new Option(role.getName(), role.getId()))
                 .collect(Collectors.toList());
         return WebResponse.OK(options);
     }
