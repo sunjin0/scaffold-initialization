@@ -274,7 +274,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             Collection<ResourceVo> resourceVos = map.values();
             routes = resourceVos.stream()
                     .filter(item -> item.getType().equals(ResourceType.ROUTE.getCode()))
-                    .filter(item -> item.getParentId() == 0)
+                    .filter(item -> item.getParentId().equals("0"))
                     .sorted(Comparator.comparing(BaseEntity::getSortNum))
                     .collect(Collectors.toList());
             Stack<Collection<ResourceVo>> stack = new Stack<>();

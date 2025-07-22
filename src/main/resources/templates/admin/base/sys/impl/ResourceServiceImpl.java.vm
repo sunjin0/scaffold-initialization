@@ -101,4 +101,25 @@ public class ResourceServiceImpl extends ServiceImpl<ResourceMapper, Resource> i
         voPage.setTotal(page.getTotal());
         return voPage;
     }
+
+    @Override
+    public boolean save(Resource resource, Boolean createNodes) {
+        boolean save = super.save(resource);
+        if (createNodes) {
+            // 创建节点
+            Resource readResource = new Resource();
+            readResource.setName("Read");
+            readResource.setNameCn("可读");
+            readResource.setType(ResourceType.PERMISSION.getCode());
+            readResource.setParentId(resource.getId());
+            super.save(readResource);
+            Resource writeResource = new Resource();
+            writeResource.setName("Write");
+            writeResource.setNameCn("可写");
+            writeResource.setType(ResourceType.PERMISSION.getCode());
+            writeResource.setParentId(resource.getId());
+            super.save(writeResource);
+        }
+        return save;
+    }
 }

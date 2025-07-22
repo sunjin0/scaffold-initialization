@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import DrawerForm from "@/components/DrawerForm";
 import {request, useIntl} from "@umijs/max";
 import {Form, message} from "antd";
-import {ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {ProFormRadio,ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import {ProFormDependency} from "@ant-design/pro-form";
 import {
   addResourceInfo,
@@ -62,6 +62,10 @@ const ResourceForm = (props: {
         name="parentId"
         label={intl.formatMessage({id: 'pages.sys.resource.menu.parent'})}
         showSearch={true}
+        required={true}
+        rules={[
+          {required: true}
+        ]}
         request={async () => getResourceOptions()}
       />
       <ProFormText
@@ -74,21 +78,34 @@ const ResourceForm = (props: {
         label={intl.formatMessage({id: 'pages.common.name.zh'})}
         rules={[{required: true}]}
       />
-      <ProFormSelect
-        name="type"
-        label={intl.formatMessage({id: 'pages.common.type'})}
+      {/*<ProFormSelect*/}
+      {/*  name="type"*/}
+      {/*  label={intl.formatMessage({id: 'pages.common.type'})}*/}
+      {/*  rules={[{required: true}]}*/}
+      {/*  request={async () =>  getOptionList('Resource_Type')}*/}
+      {/*/>*/}
+      <ProFormRadio.Group
+        tooltip={{title: intl.formatMessage({id: 'pages.sys.resource.leaf.tooltip'})}}
+        name="leaf"
+        label={intl.formatMessage({id: 'pages.sys.resource.leaf'})}
         rules={[{required: true}]}
-        request={async () =>  getOptionList('Resource_Type')}
-
-      />
-      <ProFormDependency name={['type']}>
-        {({type}) => {
-          const b = type === 'Resource_Type_Route';
+        options={[
+          {
+            label: intl.formatMessage({id: 'pages.common.yes'}),
+            value: true
+          },
+          {
+            label: intl.formatMessage({id: 'pages.common.no'}),
+            value: false
+          }
+        ]}></ProFormRadio.Group>
+      <ProFormDependency name={['leaf']}>
+        {({leaf}) => {
           return <ProFormText
             name="path"
             label={intl.formatMessage({id: 'pages.sys.resource.menu.path'})}
-            required={b}
-            rules={[{required: b}]}
+            required={leaf}
+            rules={[{required: leaf}]}
           />
         }}
       </ProFormDependency>

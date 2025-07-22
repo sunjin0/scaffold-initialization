@@ -76,8 +76,8 @@ public class ResourceController {
     public WebResponse<Boolean> save(@RequestBody
                                      @ValidEntity(fieldNames = {"name", "nameCn", "type"})
                                      Resource resource) throws ServerException {
-            boolean save = resourceService.save(resource);
-            return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"), save);
+        boolean save = resourceService.save(resource,resource.getLeaf());
+        return WebResponse.OK(I18nUtils.getMessage(save ? "add.success" : "add.fail"), save);
     }
     @ApiOperation(value = "更新资源")
     @ApiImplicitParams({
@@ -137,7 +137,7 @@ public class ResourceController {
             option.setValue(resource.getId());
             return option;
         }).collect(Collectors.toList());
-        options.add(0, new Option(I18nUtils.getMessage("system.resource.not.parent"), 0));
+        options.add(0, new Option(I18nUtils.getMessage("system.resource.not.parent"),"0"));
         return WebResponse.OK(options);
     }
 
