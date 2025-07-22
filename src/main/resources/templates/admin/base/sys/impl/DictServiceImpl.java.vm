@@ -71,6 +71,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         }
         Page<Dict> dictPage = page(page, query);
         List<Dict> records = dictPage.getRecords();
+        if (records.isEmpty()) {
+            return new Page<>();
+        }
         //父code
         List<String> parentIds = records.stream().map(Dict::getCode).collect(Collectors.toList());
         //所有子资源

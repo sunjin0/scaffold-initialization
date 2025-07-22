@@ -8,7 +8,8 @@ import {useAccess} from "@@/exports";
 import {getOptionList} from "@/services/sys/DictController";
 import {deleteAdminInfo, getAdminList, getRoleOptions} from "@/services/sys/AdminController";
 import {AdminSearchParams} from "@/services/entity/Sys";
-
+import {PlusOutlined} from "@ant-design/icons";
+import {FormattedMessage} from "@@/plugin-locale";
 const Admin: React.FC = () => {
   const intl = useIntl()
   const [open, setOpen] = useState(false);
@@ -108,6 +109,19 @@ const Admin: React.FC = () => {
       <ProTable
         actionRef={ref}
         rowKey={'user'}
+        toolBarRender={() => write&&[
+          <Button
+            key="button"
+            icon={<PlusOutlined/>}
+            type="primary"
+            onClick={() => {
+              setId(undefined)
+              setOpen(true)
+            }}
+          >
+            <FormattedMessage id="pages.common.new"/>
+          </Button>,
+        ]}
         columns={columns}
         request={async (params: AdminSearchParams) => getAdminList(params)}
       />

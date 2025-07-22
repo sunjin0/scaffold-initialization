@@ -47,6 +47,9 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         }
         Page<Config>configPage = page(page, query);
         List<Config> records = configPage.getRecords();
+        if (records.isEmpty()) {
+            return new Page<>();
+        }
         //父code
         List<String> parentIds = records.stream().map(Config::getCode).collect(Collectors.toList());
         //所有子资源
