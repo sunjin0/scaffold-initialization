@@ -61,13 +61,13 @@ public class EmailMessageServiceImpl extends ServiceImpl<EmailMessageMapper, Ema
                         .eq(message.getType() != null, Email::getType, message.getType())
                         .eq(message.getState() != null, Email::getState, message.getState())
                         .eq(message.getUserId() != null, Email::getUserId, message.getUserId())
-                        .ne(Email::getState, State.Delete.getCode())
                         .orderByDesc(Email::getCreatedAt));
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean send(Email message) throws ServerException {
+        boolean save = this.save(message);
         String captcha = dictService.getValue("Captcha");
         if (!Boolean.parseBoolean(captcha)) {
             Dict email_from = dictService.getByCode("Message_Email_From", null);
@@ -78,7 +78,6 @@ public class EmailMessageServiceImpl extends ServiceImpl<EmailMessageMapper, Ema
             messages.setSubject(message.getSubject());
             messages.setText(message.getBody());
             // 保存到数据库
-            boolean save = this.save(message);
             if (save) {
                 javaEmailService.send(messages);
                 return true;

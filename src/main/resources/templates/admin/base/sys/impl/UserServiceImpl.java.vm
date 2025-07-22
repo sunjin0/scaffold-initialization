@@ -3,6 +3,7 @@ package ${packageName}.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.data.redis.core.HashOperations;
 import ${packageName}.mapper.UserMapper;
 import ${packageName}.service.*;
 import ${packageName}.service.DictService;
@@ -77,31 +78,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     private void checkCode(String email, Integer verificationCode) {
-        String captcha = dictService.getValue("Captcha");
-        // 如果不开启验证码，直接通过
-        if (!Boolean.parseBoolean(captcha)) {
-            // 验证码校验
-            LambdaQueryWrapper<Email> query = Wrappers.lambdaQuery(Email.class);
-            query
-                    .eq(Email::getEmail, email)
-                    .eq(Email::getCode, verificationCode);
-            Email one = emailService.getOne(query);
-            if (one == null) {
-                throw new ServerException(400, I18nUtils.getMessage("user.captcha.error"));
-            } else {
-                // 判断是否超过5分钟
-                Date now = new Date();
-                if (now.getTime() - one.getCreatedAt() > 300000) {
-                    one.setState(2);
-                    emailService.update(one);
-                    throw new ServerException(400, I18nUtils.getMessage("user.captcha.expired"));
-                }
+        // 验证码校验
+        LambdaQueryWrapper<Email> query = Wrappers.lambdaQuery(Email.class);
+        query
+                .eq(Email::getEmail, email)
+                .eq(Email::getCode, verificationCode);
+        Email one = emailService.getOne(query);
+        if (one == null) {
+            throw new ServerException(400, I18nUtils.getMessage("user.captcha.error"));
+        } else {
+            // 判断是否超过5分钟
+            Date now = new Date();
+            if (now.getTime() - one.getCreatedAt() > 300000) {
+                one.setState(2);
+                emailService.update(one);
+                throw new ServerException(400, I18nUtils.getMessage("user.captcha.expired"));
             }
-            one.setState(2);
-            emailService.update(one);
-
         }
-
+        one.setState(2);
+        emailService.update(one);
     }
 
     @Override
@@ -335,7 +330,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return map;
     }
 
-    @Async
     @Override
     public void sendVerificationCode(String email) {
         User user = this.getOne(Wrappers.<User>lambdaQuery()
@@ -344,15 +338,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new ServerException(I18nUtils.getMessage("user.email.not.exist"));
         }
         try {
-            Email Email = new Email();
-            Email.setEmail(email);
-            Email.setCode(RandomUtils.nextInt(100000, 999999));
-            Email.setType(EmailType.VERIFICATION_CODE.getCode());
+            Email newEmail = new Email();
+            newEmail.setUserId(user.getId());
+            newEmail.setEmail(email);
+            newEmail.setCode(RandomUtils.nextInt(100000, 999999));
+            newEmail.setType(EmailType.VERIFICATION_CODE.getCode());
             Dict subject = dictService.getByCode("email_template_login_subject", null);
-            Email.setSubject(subject.getName());
+            newEmail.setSubject(subject.getName());
             Dict body = dictService.getByCode("email_template_login_content", null);
-            Email.setBody(body.getName().replace("${code}", Email.getCode().toString()));
-            emailService.send(Email);
+            newEmail.setBody(body.getName().replace("${code}", newEmail.getCode().toString()));
+            emailService.send(newEmail);
         } catch (ServerException e) {
             throw new ServerException(400, e.getMessage());
         }

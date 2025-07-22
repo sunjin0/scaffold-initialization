@@ -83,10 +83,7 @@ public class EmailController {
     )
     @GetMapping("/delete")
     public WebResponse<Boolean> delete(@RequestParam("id") String id) throws ServiceException {
-        Email Email = new Email();
-        Email.setId(id);
-        Email.setState(State.Delete.getCode());
-        boolean delete = emailService.updateById(Email);
+        boolean delete = emailService.removeById(id);
         return WebResponse.OK(I18nUtils.getMessage(delete ? "delete.success" : "delete.fail"), delete);
     }
 }
