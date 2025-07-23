@@ -5,7 +5,7 @@ CREATE TABLE `user_member`(
     `nickname` varchar(255) NOT NULL  DEFAULT '' COMMENT '昵称',
     `email` varchar(255) NOT NULL  DEFAULT '' COMMENT '邮箱',
     `phone` varchar(255) NOT NULL  DEFAULT '' COMMENT '手机号',
-    `status` tinyint NOT NULL  DEFAULT 1 COMMENT '状态',
+    `state` tinyint NOT NULL  DEFAULT 1 COMMENT '状态',
     `created_at` bigint NOT NULL  DEFAULT 0 COMMENT '创建时间',
     `updated_at` bigint NOT NULL  DEFAULT 0 COMMENT '修改时间',
     `deleted` bit(1) NOT NULL  DEFAULT b'0' COMMENT '逻辑删除',

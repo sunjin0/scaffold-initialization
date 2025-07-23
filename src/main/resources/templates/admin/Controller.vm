@@ -53,7 +53,7 @@ public class ${className}Controller {
     */
     @ApiOperation("修改")
     @Permission(path = "/${prefix}${serviceName}", type = Permission.Type.Write)
-    @PutMapping("/update")
+    @PostMapping("/update")
     public WebResponse<Boolean> update(@RequestBody ${className} entity) {
         Boolean update = ${serviceName}Service.updateById(entity);
         return WebResponse.OK(I18nUtils.getMessage(update ? "update.success" : "update.fail"),update);
@@ -67,5 +67,14 @@ public class ${className}Controller {
     public WebResponse<Boolean> delete(@RequestParam String id) {
         return WebResponse.OK(${serviceName}Service.removeById(id));
     }
+            /**
+             * 查询
+             */
+            @ApiOperation("查询")
+            @Permission(path = "/${prefix}${serviceName}")
+            @GetMapping("/info")
+            public WebResponse<${className}> info(@RequestParam String id) {
+                return WebResponse.OK(${serviceName}Service.getById(id));
+            }
 
 }

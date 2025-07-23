@@ -68,6 +68,7 @@ public class RoleResourceController {
             roleResource.setResourceId(resourceId);
             return roleResource;
         }).collect(Collectors.toList());
+
         boolean result = roleResourceService.saveBatch(roleResourceList);
         return WebResponse.OK(result ? I18nUtils.getMessage("system.authorize.success") : I18nUtils.getMessage("system.authorize.fail"));
     }

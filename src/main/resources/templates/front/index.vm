@@ -7,7 +7,7 @@ import $!{className}Form from "@/pages/$!{packName}/$!{className}Form";
 import {FormattedMessage} from "@@/plugin-locale";
 import {PlusOutlined} from "@ant-design/icons";
 import {history, useAccess} from "@@/exports";
-import {get$!{className}List,delete$!{className}Info,SearchParams} from "@/services/${prefix}$!{className}Controller";
+import {get$!{className}List,delete$!{className}Info,$!{className}SearchParams} from "@/services/${prefix}$!{className}Controller";
 /**
 *
 *@description $!{classComment}页面
@@ -52,7 +52,10 @@ const ref = useRef<ActionType>()
     <Popconfirm
             key={'delete'}
             title={intl.formatMessage({id: 'pages.confirm.delete'})}
-    onConfirm={async () => delete$!{className}Info({id: record.id})}
+    onConfirm={async () => {
+     await delete$!{className}Info(record)
+    ref.current?.reload()
+    }}
     >
     <Button type={'link'}
             key={'delete'}>
@@ -66,7 +69,7 @@ const ref = useRef<ActionType>()
     <PageContainer>
         <ProTable
                 actionRef={ref}
-                request={async (params) => get$!{className}List(params as SearchParams)}
+                request={async (params) => get$!{className}List(params as $!{className}SearchParams)}
             toolBarRender={() =>write&& [
             <Button
                     key="button"

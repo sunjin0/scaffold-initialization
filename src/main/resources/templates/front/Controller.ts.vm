@@ -13,9 +13,15 @@ export interface ${className}SearchParams extends ${className} {
  * @since ${now}
  */
 export interface ${className} {
+    id: number;
     #foreach($field in $fields)
             ${field.name} : ${field.type};
     #end
+    createdAt: string;
+    updatedAt: string;
+    deleted: boolean;
+    state: number;
+    sortNum: number;
 }
 /**
  * ${classComment}分页查询
@@ -25,8 +31,8 @@ export interface ${className} {
  */
 export const get${className}List = async (params: ${className}SearchParams): Promise<ResponseStructure<${className}[]>> => {
     return await request('/api/${path}/list', {
-        method: 'get',
-        params: params,
+        method: 'POST',
+        data: params,
     })
 }
 /**
@@ -38,7 +44,7 @@ export const get${className}List = async (params: ${className}SearchParams): Pro
 export const get${className}Info = async (params: ${className}SearchParams): Promise<ResponseStructure<${className}>> => {
     let {data} = await request('/api/${path}/info', {
         method: 'get',
-        params: params,
+        params: {id:params},
 
     });
     return data
@@ -73,9 +79,9 @@ export const update${className}Info = async (params: ${className}) => {
  * @since ${now}
  * @returns 删除结果
  */
-export const delete${className}Info = async (params: { id: any }) => {
+export const delete${className}Info = async (params: ${className}SearchParams) => {
     return request('/api/${path}/delete', {
         method: 'get',
-        params: params,
+        params: {id:params.id},
     })
 }

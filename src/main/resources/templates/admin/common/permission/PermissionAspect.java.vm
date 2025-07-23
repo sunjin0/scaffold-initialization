@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
  */
 @Component
 @Aspect
-public class PermissionAop {
+public class PermissionAspect {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 

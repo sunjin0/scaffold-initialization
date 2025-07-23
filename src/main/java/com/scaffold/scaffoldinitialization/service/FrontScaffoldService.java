@@ -145,7 +145,7 @@ public class FrontScaffoldService {
             routes.setComponent("Layout");
             routes.setRoutes(table.stream().map(tableInfo -> {
                 Routes routes2 = new Routes();
-                routes2.setPath("./" + prefix + "/" + StringUtils.uncapitalize(tableInfo.getClassName()));
+                routes2.setPath("/" + prefix + "/" + StringUtils.uncapitalize(tableInfo.getClassName()));
                 routes2.setName(tableInfo.getClassName());
                 routes2.setComponent(prefix + "/" + tableInfo.getClassName());
                 return routes2;

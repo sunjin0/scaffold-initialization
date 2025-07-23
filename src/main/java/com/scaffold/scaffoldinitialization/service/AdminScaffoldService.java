@@ -610,7 +610,7 @@ public class AdminScaffoldService {
                         "admin/common/permission/Permission.java.vm", "permission/Permission.java"
                 },
                 {
-                        "admin/common/permission/PermissionAop.java.vm", "permission/PermissionAop.java"
+                        "admin/common/permission/PermissionAspect.java.vm", "permission/PermissionAspect.java"
                 }
         };
     }

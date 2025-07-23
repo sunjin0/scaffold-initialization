@@ -318,6 +318,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                             map.put(child.getPath(), child.getAccess().contains("Write"));
                         }
                     });
+                }else if (router.getAccess() != null) {
+                    map.put(router.getPath(), router.getAccess().contains("Write"));
                 }
             }
         }
