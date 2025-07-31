@@ -123,7 +123,7 @@ public class AdminScaffoldService {
         ctx.put("packageName", tableOne.getPackageName());
         ctx.put("className", tableOne.getClassName());
         ctx.put("serviceName", tableOne.getServiceName());
-        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/src/main/test/java/" + PACKAGE_NAME.replace(".", "/") + "/" + SqlParser.capitalizeFirstLetter(moduleName) + "ApplicationTests.java";
+        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/src/test/java/" + PACKAGE_NAME.replace(".", "/") + "/" + SqlParser.capitalizeFirstLetter(moduleName) + "ApplicationTests.java";
         File outFile = new File(outputFilePath);
         outFile.getParentFile().mkdirs();
 
