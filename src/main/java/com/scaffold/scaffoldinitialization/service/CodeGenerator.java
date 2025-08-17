@@ -1,9 +1,10 @@
 package com.scaffold.scaffoldinitialization.service;
 
 import com.scaffold.scaffoldinitialization.entity.TableInfo;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-
+@Slf4j
 public class CodeGenerator {
 
     // SQL文件路径
@@ -21,7 +22,7 @@ public class CodeGenerator {
                 tableInfos,
                 OUTPUT_DIR,
                 true);
-        System.out.println("✅ 项目代码生成完成！");
+       log.info("✅ 项目代码生成完成！");
     }
 
 

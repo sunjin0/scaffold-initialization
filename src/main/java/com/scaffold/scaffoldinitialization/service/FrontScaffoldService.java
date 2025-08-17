@@ -3,6 +3,7 @@ package com.scaffold.scaffoldinitialization.service;
 import com.scaffold.scaffoldinitialization.entity.Routes;
 import com.scaffold.scaffoldinitialization.entity.TableInfo;
 import com.scaffold.scaffoldinitialization.utils.FileCopyUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -24,9 +25,11 @@ import static com.scaffold.scaffoldinitialization.utils.config.getVelocityEngine
  * @author sun
  * @since 2025/07/01
  */
+@Slf4j
 public class FrontScaffoldService {
     // 模板目录
     private static final String TEMPLATE_DIR = "templates/front";
+    public static final String UTF_8 = "UTF-8";
     // 项目根目录
     private static String PROJECT_ROOT = "hy-ui";
     //覆盖原文件
@@ -44,7 +47,7 @@ public class FrontScaffoldService {
      * @throws Exception 例外
      */
     public static void generateFrontScaffold(String projectName,
-                                             ArrayList<TableInfo> tableInfos,
+                                             List<TableInfo> tableInfos,
                                              String outputDir,
                                              Boolean overwrite) throws Exception {
         PROJECT_ROOT = projectName;
@@ -52,7 +55,7 @@ public class FrontScaffoldService {
         OVERWRITE = overwrite;
         VelocityEngine ve = getVelocityEngine();
         //将基础文件复制到目标目录，覆盖已存在的文件，比如template/front/base->PROJECT_ROOT目录下
-        FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File(OUTPUT_DIR + "/" + PROJECT_ROOT));
+        FileCopyUtil.copyDirectory(new File("src/main/resources/templates/front/base"), new File("%s/%s".formatted(OUTPUT_DIR, PROJECT_ROOT)));
         for (TableInfo table : tableInfos) {
             //生成service文件
             generateController(ve, table);
@@ -61,7 +64,7 @@ public class FrontScaffoldService {
         }
         //路由生成
         generateRouter(tableInfos, ve);
-        System.out.println("✅ 前端项目代码生成完成！");
+        log.info("✅ 前端项目代码生成完成！");
 
     }
 
@@ -74,7 +77,7 @@ public class FrontScaffoldService {
     private static void generateController(VelocityEngine ve, TableInfo table) {
         String templates = TEMPLATE_DIR + "/" + "Controller.ts.vm";
         //创建模板
-        Template tpl = ve.getTemplate(templates, "UTF-8");
+        Template tpl = ve.getTemplate(templates, UTF_8);
         VelocityContext ctx = new VelocityContext();
         //获取文件名
         String fieldName = String.format("%sController.ts", table.getClassName());
@@ -91,7 +94,7 @@ public class FrontScaffoldService {
         File outFile = new File(outputFilePath);
         //创建父目录
         if (outFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            log.warn("⚠️ 文件已存在，跳过生成：{}", outFile.getAbsolutePath());
             return;
         }
 
@@ -112,7 +115,7 @@ public class FrontScaffoldService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("📄 生成文件：" + outputFilePath);
+        log.info("📄 生成文件：{}", outputFilePath);
 
     }
 
@@ -123,9 +126,9 @@ public class FrontScaffoldService {
      * @param ve     ve
      * @throws Exception 例外
      */
-    private static void generateRouter(ArrayList<TableInfo> tables, VelocityEngine ve) throws Exception {
+    private static void generateRouter(List<TableInfo> tables, VelocityEngine ve) throws IOException {
         String templates = TEMPLATE_DIR + "/routes.ts.vm";
-        Template tpl = ve.getTemplate(templates, "UTF-8");
+        Template tpl = ve.getTemplate(templates, UTF_8);
         VelocityContext ctx = new VelocityContext();
         //根据前缀生成路由文件
         //1. 获取前缀:子类的map
@@ -139,18 +142,20 @@ public class FrontScaffoldService {
             String prefix = entry.getKey();
             List<TableInfo> table = entry.getValue();
             Routes routes = new Routes();
-            String path = "/" + prefix;
+            String path = "/%s".formatted(prefix);
             routes.setPath(path);
             routes.setName(prefix);
             routes.setComponent("Layout");
-            routes.setRoutes(table.stream().map(tableInfo -> {
+            List<Routes> list = new ArrayList<>();
+            for (TableInfo info : table) {
                 Routes routes2 = new Routes();
-                String uncapitalize = StringUtils.uncapitalize(tableInfo.getClassName());
+                String uncapitalize = StringUtils.uncapitalize(info.getClassName());
                 routes2.setPath("/" + prefix + "/" + uncapitalize);
-                routes2.setName(tableInfo.getClassName());
-                routes2.setComponent(prefix + "/" +uncapitalize);
-                return routes2;
-            }).collect(Collectors.toList()));
+                routes2.setName(info.getClassName());
+                routes2.setComponent(prefix + "/" + uncapitalize);
+                list.add(routes2);
+            }
+            routes.setRoutes(list);
             routesList.add(routes);
         }
         ctx.put("routes", routesList);
@@ -161,14 +166,14 @@ public class FrontScaffoldService {
     private static void overwrite(Template tpl, VelocityContext ctx, String outputFilePath) throws IOException {
         File outFile = new File(outputFilePath);
         if (outFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+            log.warn("⚠️ 文件已存在，跳过生成：{}", outFile.getAbsolutePath());
             return;
         }
         outFile.getParentFile().mkdirs();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
             tpl.merge(ctx, writer);
         }
-        System.out.println("📄 生成文件：" + outputFilePath);
+        log.info("📄 生成文件：{}", outputFilePath);
     }
 
     /**
@@ -192,7 +197,7 @@ public class FrontScaffoldService {
      */
     private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String outPath) throws Exception {
         String templates = TEMPLATE_DIR + "/" + tplName;
-        Template tpl = ve.getTemplate(templates, "UTF-8");
+        Template tpl = ve.getTemplate(templates, UTF_8);
         VelocityContext ctx = new VelocityContext();
         ctx.put("className", table.getClassName());
         ctx.put("serviceName", table.getServiceName());

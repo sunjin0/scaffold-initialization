@@ -1,6 +1,7 @@
 package com.scaffold.scaffoldinitialization.service;
 
 import com.scaffold.scaffoldinitialization.entity.TableInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -8,9 +9,11 @@ import org.apache.velocity.app.VelocityEngine;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.scaffold.scaffoldinitialization.utils.config.getVelocityEngine;
 
+@Slf4j
 public class AdminScaffoldService {
     // 多模块名称
     private static final String MODULE_API = "api";
@@ -18,6 +21,14 @@ public class AdminScaffoldService {
     private static final String MODULE_COMMON = "common";
     private static final String MODULE_ADMIN = "admin";
     private static final String MODULE_FRONT = "front";
+    public static final String SRC_MAIN_RESOURCES = "src/main/resources";
+    public static final String PACKAGE_NAME1 = "packageName";
+    public static final String CLASS_NAME = "className";
+    public static final String SERVICE_NAME = "serviceName";
+    public static final String PACKAGE_NAME_2 = "packageName2";
+    public static final String SRC_MAIN_JAVA = "src/main/java";
+    public static final String FILE_EXIT = "⚠️ 文件已存在，跳过生成：{}";
+    public static final String UTF_8 = "UTF-8";
     //覆盖原文件
     private static boolean OVERWRITE = true;
     // 模板目录
@@ -41,7 +52,7 @@ public class AdminScaffoldService {
      */
     public static void generateAdminScaffold(String projectName,
                                              String packageName,
-                                             ArrayList<TableInfo> tables,
+                                             List<TableInfo> tables,
                                              String outputDir, Boolean overwrite) throws Exception {
         PROJECT_ROOT = projectName;
         OUTPUT_DIR = outputDir;
@@ -57,7 +68,7 @@ public class AdminScaffoldService {
 
         // 4. 为每个表生成代码
         for (TableInfo table : tables) {
-            CodeGenerator(table, ve);
+            codeGenerator(table, ve);
         }
         // 5.权限邮件基础代码
         generateBaseFiles(ve);
@@ -69,7 +80,7 @@ public class AdminScaffoldService {
         generateMainFile(table, tableOne, admin, ve, front);
         //7.test  文件
         generateTestsFile(ve, table, admin, front);
-        System.out.println("✅ 后台项目代码生成完成！");
+       log.info("✅ 后台项目代码生成完成！");
     }
 
     /**
@@ -120,10 +131,10 @@ public class AdminScaffoldService {
      */
     private static void generateTestFile(TableInfo tableOne, Template template, String moduleName) throws IOException {
         VelocityContext ctx = new VelocityContext();
-        ctx.put("packageName", tableOne.getPackageName());
-        ctx.put("className", tableOne.getClassName());
-        ctx.put("serviceName", tableOne.getServiceName());
-        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/src/test/java/" + PACKAGE_NAME.replace(".", "/") + "/" + SqlParser.capitalizeFirstLetter(moduleName) + "ApplicationTests.java";
+        ctx.put(PACKAGE_NAME1, tableOne.getPackageName());
+        ctx.put(CLASS_NAME, tableOne.getClassName());
+        ctx.put(SERVICE_NAME, tableOne.getServiceName());
+        String outputFilePath = "%s%s/%s/src/test/java/%s/%sApplicationTests.java".formatted(OUTPUT_DIR, PROJECT_ROOT, moduleName, PACKAGE_NAME.replace(".", "/"), SqlParser.capitalizeFirstLetter(moduleName));
         File outFile = new File(outputFilePath);
         outFile.getParentFile().mkdirs();
 
@@ -140,10 +151,10 @@ public class AdminScaffoldService {
     private static void generateSysFiles(VelocityEngine ve) {
         String[][] sysTemplateMapping = getSysTemplateMapping();
         VelocityContext context = new VelocityContext();
-        context.put("packageName", PACKAGE_NAME + ".sys");
-        context.put("packageName2", PACKAGE_NAME);
+        context.put(PACKAGE_NAME1, PACKAGE_NAME + ".sys");
+        context.put(PACKAGE_NAME_2, PACKAGE_NAME);
         String packageName = PACKAGE_NAME.replace('.', '/');
-        String targetSubDir = "src/main/java/" + packageName + "/sys/";
+        String targetSubDir = (SRC_MAIN_JAVA + "/%s/sys/").formatted(packageName);
 
         generateBaseFiles(ve, sysTemplateMapping, targetSubDir, context, packageName);
 
@@ -190,7 +201,7 @@ public class AdminScaffoldService {
                 generateConfigFileFromTemplate(ve,
                         MODULE_COMMON,
                         templatePath,
-                        "src/main/java/" + packageName,
+                        SRC_MAIN_JAVA + "/" + packageName,
                         targetFileName,
                         context);
             }
@@ -205,10 +216,10 @@ public class AdminScaffoldService {
     private static void generateMessageFile(VelocityEngine ve) {
         String[][] msgTemplateMapping = getMessageTemplateMapping();
         VelocityContext context = new VelocityContext();
-        context.put("packageName", PACKAGE_NAME + ".msg");
-        context.put("packageName2", PACKAGE_NAME);
+        context.put(PACKAGE_NAME1, PACKAGE_NAME + ".msg");
+        context.put(PACKAGE_NAME_2, PACKAGE_NAME);
         String packageName = PACKAGE_NAME.replace('.', '/');
-        String targetSubDir = "src/main/java/" + packageName + "/msg/";
+        String targetSubDir = SRC_MAIN_JAVA + "/" + packageName + "/msg/";
         generateBaseFiles(ve, msgTemplateMapping, targetSubDir, context, packageName);
     }
 
@@ -230,7 +241,7 @@ public class AdminScaffoldService {
      * @param ve    ve
      * @throws Exception 例外
      */
-    private static void CodeGenerator(TableInfo table, VelocityEngine ve) throws Exception {
+    private static void codeGenerator(TableInfo table, VelocityEngine ve) throws Exception {
         table.setPackageName(PACKAGE_NAME);
         // Entity 放入 api 模块
         String packPath = PACKAGE_NAME.replace(".", "/");
@@ -290,9 +301,9 @@ public class AdminScaffoldService {
      * @param moduleName 模块名称
      */
     private static void createModuleStructure(String moduleName) {
-        String modulePath = OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName;
+        String modulePath = "%s%s/%s".formatted(OUTPUT_DIR, PROJECT_ROOT, moduleName);
         new File(modulePath).mkdirs();
-        new File(modulePath + "/src/main/java/" + PACKAGE_NAME.replace(".", "/")).mkdirs();
+        new File("%s/%s/%s".formatted(modulePath, SRC_MAIN_JAVA, PACKAGE_NAME.replace(".", "/"))).mkdirs();
         new File(modulePath + "/src/main/resources").mkdirs();
     }
 
@@ -327,18 +338,18 @@ public class AdminScaffoldService {
                 {"admin/api/i18n/api_zh_CN.properties.vm", "i18n/api_zh_CN.properties"},
                 {"admin/api/i18n/api_en_US.properties.vm", "i18n/api_en_US.properties"},
         };
-        generateMultipleConfigFiles(ve, MODULE_API, "src/main/resources", templateMapping, ctx);
+        generateMultipleConfigFiles(ve, MODULE_API, SRC_MAIN_RESOURCES, templateMapping, ctx);
         String[][] applicationTemplates = {{"admin/api/application.yml.vm", "application.yml"}};
-        generateMultipleConfigFiles(ve, MODULE_ADMIN, "src/main/resources", applicationTemplates, ctx);
-        generateMultipleConfigFiles(ve, MODULE_FRONT, "src/main/resources", applicationTemplates, ctx);
+        generateMultipleConfigFiles(ve, MODULE_ADMIN, SRC_MAIN_RESOURCES, applicationTemplates, ctx);
+        generateMultipleConfigFiles(ve, MODULE_FRONT, SRC_MAIN_RESOURCES, applicationTemplates, ctx);
 
         generateModulePom(ve, MODULE_BIZ);
         generateModulePom(ve, MODULE_COMMON);
         //将基础配置文件
-        ctx.put("packageName", PACKAGE_NAME);
+        ctx.put(PACKAGE_NAME1, PACKAGE_NAME);
         generateMultipleConfigFiles(ve,
                 MODULE_COMMON,
-                "src/main/java/" + PACKAGE_NAME.replace(".", "/"),
+                SRC_MAIN_JAVA + "/" + PACKAGE_NAME.replace(".", "/"),
                 getBaseTemplateMapping(),
                 ctx);
         generateModulePom(ve, MODULE_ADMIN);
@@ -356,7 +367,7 @@ public class AdminScaffoldService {
      * @param templateMapping 模板映射关系 [[模板路径, 目标文件路径]]
      * @throws Exception 异常
      */
-    private static void generateMultipleConfigFiles(VelocityEngine ve, String moduleName, String targetSubDir, String[][] templateMapping, VelocityContext ctx) throws Exception {
+    private static void generateMultipleConfigFiles(VelocityEngine ve, String moduleName, String targetSubDir, String[][] templateMapping, VelocityContext ctx) {
         for (String[] mapping : templateMapping) {
             String sourceTemplate = mapping[0];
             String targetFile = mapping[1];
@@ -392,7 +403,7 @@ public class AdminScaffoldService {
         File targetFile = new File(targetDir, targetFileName); // + com/example/demo/config/AsyncConfig.java
 
         if (targetFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + targetFile.getAbsolutePath());
+            log.info(FILE_EXIT, targetFile.getAbsolutePath());
             return;
         }
 
@@ -403,17 +414,17 @@ public class AdminScaffoldService {
         }
 
         // 加载模板
-        Template template = ve.getTemplate(TEMPLATE_DIR + "/" + sourceTemplatePath, "UTF-8");
+        Template template = ve.getTemplate(TEMPLATE_DIR + "/" + sourceTemplatePath, UTF_8);
 
         // 写入输出文件
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8)) {
             template.merge(context, writer);
         } catch (Exception e) {
-            System.err.println("无法写入文件: " + targetFile);
+            log.error("无法写入文件: {}" ,targetFile);
             throw new RuntimeException("写入文件失败: " + targetFile, e);
         }
 
-        System.out.println("📄 从模板生成配置文件完成：" + sourceTemplatePath + " → " + targetFile.getAbsolutePath());
+        log.info("\uD83D\uDCC4 从模板生成配置文件完成：{} → {}", sourceTemplatePath, targetFile.getAbsolutePath());
     }
 
 
@@ -432,10 +443,10 @@ public class AdminScaffoldService {
         ctx.put("module", moduleName);
         ctx.put("java.version", "17");
 
-        Template tpl = ve.getTemplate(TEMPLATE_DIR + "/admin/" + "module-pom.vm", "UTF-8");
-        File outFile = new File(OUTPUT_DIR + PROJECT_ROOT + "/" + moduleName + "/pom.xml");
+        Template tpl = ve.getTemplate(TEMPLATE_DIR + "/admin/" + "module-pom.vm", UTF_8);
+        File outFile = new File("%s%s/%s/pom.xml".formatted(OUTPUT_DIR, PROJECT_ROOT, moduleName));
         if (outFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+          log.warn(FILE_EXIT,outFile.getAbsolutePath());
             return;
         }
         outFile.getParentFile().mkdirs();
@@ -450,25 +461,25 @@ public class AdminScaffoldService {
      */
     private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String module, String outPath) throws Exception {
         String templates = TEMPLATE_DIR + "/admin/" + tplName;
-        Template tpl = ve.getTemplate(templates, "UTF-8");
+        Template tpl = ve.getTemplate(templates, UTF_8);
         VelocityContext ctx = new VelocityContext();
         String packageName = table.getPackageName();
         String fullPackageName = (table.getPrefix() != null)
                 ? packageName + "." + table.getPrefix()
                 : packageName;
-        ctx.put("packageName", fullPackageName);
+        ctx.put(PACKAGE_NAME1, fullPackageName);
         ctx.put("tableName", table.getTableName());
-        ctx.put("className", table.getClassName());
-        ctx.put("serviceName", table.getServiceName());
+        ctx.put(CLASS_NAME, table.getClassName());
+        ctx.put(SERVICE_NAME, table.getServiceName());
         ctx.put("classComment", table.getClassComment());
         ctx.put("fields", table.getFields());
         ctx.put("prefix", table.getPrefix() + "/");
-        ctx.put("packageName2", packageName);
+        ctx.put(PACKAGE_NAME_2, packageName);
 
-        String outputFilePath = OUTPUT_DIR + PROJECT_ROOT + "/" + module + "/src/main/java/" + outPath;
+        String outputFilePath = "%s%s/%s/%s/%s".formatted(OUTPUT_DIR, PROJECT_ROOT, module, SRC_MAIN_JAVA, outPath);
         File outFile = new File(outputFilePath);
         if (outFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + outputFilePath);
+           log.warn(FILE_EXIT, outputFilePath);
             return;
         }
         outFile.getParentFile().mkdirs();
@@ -476,7 +487,7 @@ public class AdminScaffoldService {
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
             tpl.merge(ctx, writer);
         }
-        System.out.println("📄 生成文件：" + outputFilePath);
+       log.info("📄 生成文件：{}" , outputFilePath);
     }
 
     /**
@@ -484,28 +495,28 @@ public class AdminScaffoldService {
      */
     private static void generateFile(VelocityEngine ve, String tplName, TableInfo table, String outPath) throws Exception {
         String templates = TEMPLATE_DIR + "/" + tplName;
-        Template tpl = ve.getTemplate(templates, "UTF-8");
+        Template tpl = ve.getTemplate(templates, UTF_8);
         VelocityContext ctx = new VelocityContext();
         if (table.getPrefix() != null)
-            ctx.put("packageName", table.getPackageName() + "." + table.getPrefix());
+            ctx.put(PACKAGE_NAME1, table.getPackageName() + "." + table.getPrefix());
         else
-            ctx.put("packageName", table.getPackageName());
+            ctx.put(PACKAGE_NAME1, table.getPackageName());
         ctx.put("tableName", table.getTableName());
-        ctx.put("className", table.getClassName());
-        ctx.put("serviceName", table.getServiceName());
+        ctx.put(CLASS_NAME, table.getClassName());
+        ctx.put(SERVICE_NAME, table.getServiceName());
         ctx.put("classComment", table.getClassComment());
         ctx.put("fields", table.getFields());
 
         File outFile = new File(OUTPUT_DIR + outPath);
         if (outFile.exists() && !OVERWRITE) {
-            System.out.println("⚠️ 文件已存在，跳过生成：" + outFile.getAbsolutePath());
+          log.warn(FILE_EXIT,outFile.getAbsolutePath());
             return;
         }
         outFile.getParentFile().mkdirs();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(outFile), StandardCharsets.UTF_8)) {
             tpl.merge(ctx, writer);
         }
-        System.out.println("📄 生成文件：" + outPath);
+        log.info("📄 生成文件：{}" , outPath);
     }
 
     /**
